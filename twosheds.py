@@ -1,11 +1,16 @@
 import traceback
 
 import pbs
+import colors
 
 
 def cd(*args):
     pbs.cd(*args)
-    print pbs.ls()
+    print colors.success(pbs.ls())
+
+
+def vim(*args):
+    pbs.vim(*args, _fg=True)
 
 
 up = ".."
@@ -31,10 +36,11 @@ def run_repl(env):
             else:
                 # Run if it's a function
                 try:
-                    print r()
+                    r = r()
                 except:
-                    if r is not None:
-                        print r
+                    pass
+                if r is not None:
+                    print colors.success(r)
         except SystemExit:
             break
         except:
@@ -46,6 +52,7 @@ def run_repl(env):
 EXPORTS = {
     "up": up,
     "cd": cd,
+    "vim": vim,
 }
 
 
