@@ -1,70 +1,70 @@
 import traceback
 
+# this is the same as sh, except it allows foreground
 import pbs
-import colors
+import sh
+from pycolorterm.pycolorterm import pretty_output, styles
+from sh import CommandNotFound
 
 
-def cd(*args):
-    pbs.cd(*args)
-    print colors.success(pbs.ls())
+LAST = '_'
+
+def get_prompt():
+    return "$ "
 
 
-def vim(*args):
-    pbs.vim(*args, _fg=True)
+def run_command(line, env):
+    tokens = line.split()
+    command, args = tokens[0].replace("-", "_"), tokens[1:]
+    string_tokens = [arg if arg in env else '"%s"' % arg for arg in args]
+    if args:
+        if args[-1] == "&":
+            string_tokens[-1] = "_bg=True"
+        elif args[-1] == "!":
+            env = pbs.Environment()
+            string_tokens[-1] = "_fg=True"
+    new_command = "%s(%s)" % (command, ", ".join(string_tokens))
+    # TODO: Log this properly
+    # print new_command
+    env[LAST] = rv = eval(new_command, env, env)
+    try:
+        return rv.strip()
+    except:
+        return rv
 
 
-up = ".."
+def run_python(line, env):
+    try:
+        env[LAST] = rv = eval(line, env, env)  # expressions
+        return rv
+    except SyntaxError:
+        exec(line, env, env)  # statements
 
 
-def run_repl(env):
+def main(env):
     while True:
         try:
-            line = raw_input("pbs> ")
+            line = raw_input(get_prompt())
         except (ValueError, EOFError):
             break
-        # going to disable piping here
-        tokens = line.split()
-        command, args = tokens[0], tokens[1:]
-        string_tokens = ('"%s"' % arg for arg in args)
-        new_command = "%s(%s)" % (command, ", ".join(string_tokens))
-        print new_command
+        if not line:
+            continue
         try:
             try:
-                r = eval(new_command, env, env)
-            except SyntaxError:
-                exec(new_command, env, env)
-            else:
-                # Run if it's a function
-                try:
-                    r = r()
-                except:
-                    pass
-                if r is not None:
-                    print colors.success(r)
+                rv = run_command(line, env)
+            except:
+                rv = run_python(line, env)
         except SystemExit:
             break
         except:
-            print(traceback.format_exc())
+            with pretty_output(styles['FG_RED']) as out:
+                out.write(traceback.format_exc())
+        else:
+            print rv
 
-    # cleans up our last line
-    print("")
-
-EXPORTS = {
-    "up": up,
-    "cd": cd,
-    "vim": vim,
-}
-
-
-# we're being run as a stand-alone script, fire up a REPL
 if __name__ == "__main__":
-    globs = globals()
-
-    f_globals = {}
-    for k in ["__builtins__", "__doc__", "__name__", "__package__"]:
-        f_globals[k] = globs[k]
-
-    for k, v in EXPORTS.iteritems():
-        f_globals[k] = v
-    env = pbs.Environment(f_globals)
-    run_repl(env)
+    # this allows lookups to names that aren't found in the global scope to be
+    # searched for as a program name.  for example, if "ls" isn't found in this
+	# module's scope, we consider it a system program and try to find it.
+    env = sh.Environment({})
+    main(env)

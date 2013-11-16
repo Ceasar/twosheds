@@ -1,1 +1,3 @@
-pbs==0.107
+pbs==0.110
+pycolorterm==0.2.1
+sh==1.09
