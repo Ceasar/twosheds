@@ -103,12 +103,14 @@ class Shell(object):
     def complete(self, text, state):
         matches = []
 
-        ls = check_output("ls")
+        head, tail = os.path.split(text)
+
+        ls = check_output("ls %s" % head, shell=True)
         filenames = ls.split()
 
         for filename in filenames:
-            if filename.startswith(text):
-                matches.append(filename)
+            if filename.startswith(tail):
+                matches.append(os.path.join(head, filename))
         try:
             return matches[state]
         except IndexError:
@@ -140,6 +142,3 @@ class PythonShell(Shell):
                 self._raise_cursor()
                 self._clear_line()
                 return run_python(line, self.env)
-
-
-
