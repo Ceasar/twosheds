@@ -1,36 +1,26 @@
 import atexit
 import code
-import logging
 import os
 import readline
 from subprocess import call, check_output
 import sys
 import traceback
 
-LAST = '_'
 HOME = os.environ["HOME"]
-
-
-def run_python(line, env):
-    try:
-        return eval(line, env, env)  # expressions
-    except SyntaxError:
-        exec(line, env, env)  # statements
 
 
 class Shell(object):
     BUILTINS = {'cd': os.chdir}
 
-    def __init__(self, env, aliases=None, builtins=None,
+    def __init__(self, aliases=None, builtins=None,
                  histfile=os.path.expanduser("~/.console-history")):
-        self.env = env
         self.aliases = aliases or {}
         self.builtins = builtins or self.BUILTINS
         self.init_history(histfile)
 
     @property
     def prompt(self):
-        pwd = check_output("pwd")
+        pwd = check_output("pwd", shell=True)
         return (pwd.strip() + " ").replace(HOME, "~")
 
     def out(self, msg):
@@ -75,30 +65,26 @@ class Shell(object):
         sys.stdout.flush()
 
     def eval(self, line):
-        if line:
-            exit_code = call(line, shell=True)
+        call(line, shell=True)
 
     def interact(self):
         while True:
             try:
                 line = self.read()
+                if not line:
+                    continue
                 tokens = line.split()
                 command, args = tokens[0], tokens[1:]
                 # handle any shell builtin commands
                 try:
                     self.builtins[command](args[0])
                 except KeyError:
-                    rv = self.eval(line)
-                else:
-                    continue
+                    self.eval(line)
+                self.after(line)
             except SystemExit:
                 break
             except:
                 self.error(traceback.format_exc())
-            else:
-                if rv is not None:
-                    self.env[LAST] = rv
-                    self.out(str(rv))
 
     def complete(self, text, state):
         matches = []
@@ -131,14 +117,3 @@ class Shell(object):
 
     def save_history(self, histfile):
         readline.write_history_file(histfile)
-
-
-class PythonShell(Shell):
-    def eval(self, line):
-        if line:
-            exit_code = call(line, shell=True)
-            if exit_code != 0:
-                # hide the error
-                self._raise_cursor()
-                self._clear_line()
-                return run_python(line, self.env)
