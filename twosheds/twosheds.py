@@ -61,11 +61,6 @@ class Shell(object):
     def eval(self, line):
         if line:
             exit_code = call(line, shell=True)
-            if exit_code != 0:
-                # hide the error
-                self._raise_cursor()
-                self._clear_line()
-                return run_python(line, self.env)
 
     def interact(self):
         while True:
@@ -118,6 +113,18 @@ class Shell(object):
 
     def save_history(self, histfile):
         readline.write_history_file(histfile)
+
+
+class PythonShell(Shell):
+    def eval(self, line):
+        if line:
+            exit_code = call(line, shell=True)
+            if exit_code != 0:
+                # hide the error
+                self._raise_cursor()
+                self._clear_line()
+                return run_python(line, self.env)
+
 
 
 def coroutine(func):
