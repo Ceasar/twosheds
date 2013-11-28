@@ -21,9 +21,10 @@ def run_python(line, env):
 class Shell(object):
     BUILTINS = {'cd': os.chdir}
 
-    def __init__(self, env, builtins=None,
+    def __init__(self, env, aliases=None, builtins=None,
                  histfile=os.path.expanduser("~/.console-history")):
         self.env = env
+        self.aliases = aliases or {}
         self.builtins = builtins or self.BUILTINS
         self.init_history(histfile)
 
@@ -45,9 +46,24 @@ class Shell(object):
             raise SystemExit()
 
     def rewrite(self, line):
-        for k, v in os.environ.iteritems():
-            line = line.replace(k, v)
-        return line
+        tokens = line.split()
+        new_tokens = []
+        for token in tokens:
+            try:
+                v = self.aliases[token]
+            except KeyError:
+                if token.startswith("$"):
+                    try:
+                        v = os.environ[token[1:]]
+                    except KeyError:
+                        new_tokens.append(token)
+                    else:
+                        new_tokens.append(v)
+                else:
+                    new_tokens.append(token)
+            else:
+                new_tokens.append(v)
+        return " ".join(new_tokens)
 
     def _raise_cursor(self, n=1):
         """Move the cursor up `n` lines."""
@@ -127,21 +143,3 @@ class PythonShell(Shell):
 
 
 
-def coroutine(func):
-    def start(*args, **kwargs):
-        cr = func(*args, **kwargs)
-        cr.next()
-        return cr
-    return start
-
-
-@coroutine
-def auto_ls():
-    """List directory contents whenever contents change."""
-    old = sh.ls()
-    while True:
-        _ = (yield)
-        new = sh.ls()
-        if str(new) != str(old):
-            print new.strip()
-        old = new
