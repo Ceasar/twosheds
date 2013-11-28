@@ -3,7 +3,6 @@ import code
 import logging
 import os
 import readline
-# import rlcompleter
 from subprocess import call, check_output
 import sys
 import traceback
@@ -139,11 +138,3 @@ def auto_ls():
         if str(new) != str(old):
             print new.strip()
         old = new
-
-
-if __name__ == "__main__":
-    # this allows lookups to names that aren't found in the global scope to be
-    # searched for as a program name.  for example, if "ls" isn't found in this
-    # module's scope, we consider it a system program and try to find it.
-    shell = Shell({})
-    shell.interact()
