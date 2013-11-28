@@ -1,6 +1,12 @@
 twosheds
 ========
 
-With twosheds I aim to make a wrapper for the bash shell that fixes the problems inherent with posix shells. Namely, inconsistency in APIs.
+Twosheds is a shell written in Python. It is intended to be highly extensible.
 
-To do so is a massive undertaking naturally, so we'll see how far this goes, but for now it's a pretty fun toy.
+# Install
+
+```
+pip install twosheds
+```
+
+You may need to `sudo` if you intend to install system wide.
