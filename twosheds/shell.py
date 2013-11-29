@@ -43,24 +43,30 @@ class Shell(object):
         except EOFError:
             raise SystemExit()
 
+    def expand_aliases(self, line):
+        try:
+            command, args = line.split(" ", 1)
+        except ValueError:
+            command, args = line, ""
+        try:
+            return "%s %s" % (self.aliases[command], args)
+        except KeyError:
+            return line
+
     def expand(self, line):
         """Expand any macros in a command."""
+        line = self.expand_aliases(line)
         new_tokens = []
         for token in line.split():
-            try:
-                v = self.aliases[token]
-            except KeyError:
-                if token.startswith("$"):
-                    try:
-                        v = os.environ[token[1:]]
-                    except KeyError:
-                        new_tokens.append(token)
-                    else:
-                        new_tokens.append(v)
-                else:
+            if token.startswith("$"):
+                try:
+                    v = os.environ[token[1:]]
+                except KeyError:
                     new_tokens.append(token)
+                else:
+                    new_tokens.append(v)
             else:
-                new_tokens.append(v)
+                new_tokens.append(token)
         return " ".join(new_tokens)
 
     def eval(self, line):
