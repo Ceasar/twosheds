@@ -31,6 +31,12 @@ class Completer(object):
     If the word is already complete (perhaps there is a `/usr/lost' on your
     system, or perhaps you were thinking too far ahead and typed the whole
     thing) a `/' or space is added to the end if it isn't already there.
+
+    The shell will list the remaining choices (if any) below the unfinished
+    command line whenever completion fails, for example:
+
+        > ls /usr/l[tab]
+        lbin/       lib/        local/      lost+found/
     """
     def __init__(self, shell, use_suffix=True):
         self.shell = shell
