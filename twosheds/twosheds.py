@@ -1,3 +1,12 @@
+"""
+
+    twosheds.shell
+    ~~~~~~~~~~~~~~
+
+    This module implements the central user interface for access to an
+    operating system's kernel services.
+
+"""
 import atexit
 import code
 import os
@@ -6,10 +15,11 @@ from subprocess import call, check_output
 import sys
 import traceback
 
-HOME = os.environ["HOME"]
-
 
 class Shell(object):
+    """The shell is an sh-compatible command language interpreter that executes
+    commands read from standard input.
+    """
     BUILTINS = {'cd': os.chdir}
 
     def __init__(self, aliases=None, builtins=None,
@@ -20,22 +30,26 @@ class Shell(object):
 
     @property
     def prompt(self):
-        pwd = check_output("pwd", shell=True)
-        return (pwd.strip() + " ").replace(HOME, "~")
+        """Indicate to the user that the shell is waiting for a command."""
+        return "$"
 
-    def out(self, msg):
+    def output(self, msg):
+        """Output a message."""
         sys.stdout.write(msg)
 
     def error(self, msg):
+        """Output an error."""
         sys.stderr.write(msg)
 
     def read(self):
+        """Accept a command from the user."""
         try:
             return self.rewrite(raw_input(self.prompt))
         except EOFError:
             raise SystemExit()
 
     def rewrite(self, line):
+        """Transform a line."""
         tokens = line.split()
         new_tokens = []
         for token in tokens:
@@ -57,17 +71,19 @@ class Shell(object):
 
     def _raise_cursor(self, n=1):
         """Move the cursor up `n` lines."""
-        self.out('\033[%sA' % n)
+        self.output('\033[%sA' % n)
         sys.stdout.flush()
 
     def _clear_line(self):
-        self.out('\033[K')
+        self.output('\033[K')
         sys.stdout.flush()
 
     def eval(self, line):
+        """Evaluate an input."""
         call(line, shell=True)
 
     def interact(self):
+        """"""
         while True:
             try:
                 line = self.read()
@@ -77,7 +93,7 @@ class Shell(object):
                 command, args = tokens[0], tokens[1:]
                 # handle any shell builtin commands
                 try:
-                    self.builtins[command](args[0])
+                    self.builtins[command](*args)
                 except KeyError:
                     self.eval(line)
                 self.after(line)
@@ -87,6 +103,13 @@ class Shell(object):
                 self.error(traceback.format_exc())
 
     def complete(self, text, state):
+        """Return the next possible completion for 'text'.
+
+        This is called successively with state == 0, 1, 2, ... until it
+        returns None.
+        
+        The completion should begin with 'text'.
+        """
         matches = []
 
         head, tail = os.path.split(text)
