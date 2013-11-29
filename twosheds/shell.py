@@ -7,11 +7,8 @@
     operating system's kernel services.
 
 """
-import atexit
-import code
 import os
-import readline
-from subprocess import call, check_output
+import subprocess
 import sys
 import traceback
 
@@ -78,7 +75,7 @@ class Shell(object):
 
     def eval(self, line):
         """Evaluate an input."""
-        call(line, shell=True)
+        subprocess.call(line, shell=True)
 
     def interact(self):
         """"""
