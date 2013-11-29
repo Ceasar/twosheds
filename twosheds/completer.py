@@ -1,3 +1,11 @@
+"""
+
+    twosheds.completer
+    ~~~~~~~~~~~~~~~~~~
+
+    This module implements command completion.
+
+"""
 import os
 import readline
 import sys
@@ -7,7 +15,7 @@ class Completer(object):
     """A completer completes words when given a unique abbreviation.
     
     Type part of a word (for example `ls /usr/lost') and hit the tab key to
-    run the completer editor command.
+    run the completer.
     
     The shell completes the filename `/usr/lost' to `/usr/lost+found/',
     replacing the incomplete word with the complete word in the input buffer.
@@ -33,8 +41,27 @@ class Completer(object):
             readline.parse_and_bind("tab: complete")
         readline.set_completer(self.complete)
 
-    def add_suffix(self, filename):
+    def inflect(self, filename):
+        """Inflect a filename to indicate its type.
+
+        If the file is a directory, the suffix "/" is appended, otherwise
+        a space is appended.
+        """
         return filename + ("/" if os.path.isdir(filename) else " ")
+
+    def get_matches(self, text):
+        """Find all files that match `word`."""
+        head, tail = os.path.split(text)
+
+        filenames = os.listdir(head or '.')
+
+        if tail:
+            return [os.path.join(head, filename) for filename in filenames
+                    if filename.startswith(tail)]
+        else:
+            # do not show hidden files when listing contents of a directory
+            return [os.path.join(head, filename) for filename in filenames
+                    if not filename.startswith('.')]
 
     def complete(self, text, state):
         """Return the next possible completion for 'text'.
@@ -44,14 +71,9 @@ class Completer(object):
         
         The completion should begin with 'text'.
         """
-        head, tail = os.path.split(text)
-
-        filenames = os.listdir(head or ".")
-
-        matches = [os.path.join(head, filename) for filename in filenames
-                   if filename.startswith(tail)]
+        matches = self.get_matches(text)
         if self.use_suffix:
-            matches = [self.add_suffix(match) for match in matches]
+            matches = [self.inflect(match) for match in matches]
         try:
             return matches[state]
         except IndexError:
