@@ -2,4 +2,4 @@
 
 from __future__ import absolute_import
 
-from .twosheds import *
+from .shell import Shell
