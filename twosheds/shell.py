@@ -39,15 +39,14 @@ class Shell(object):
     def read(self):
         """Accept a command from the user."""
         try:
-            return self.rewrite(raw_input(self.prompt))
+            return self.expand(raw_input(self.prompt))
         except EOFError:
             raise SystemExit()
 
-    def rewrite(self, line):
-        """Transform a line."""
-        tokens = line.split()
+    def expand(self, line):
+        """Expand any macros in a command."""
         new_tokens = []
-        for token in tokens:
+        for token in line.split():
             try:
                 v = self.aliases[token]
             except KeyError:
