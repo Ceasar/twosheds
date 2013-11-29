@@ -26,7 +26,7 @@ class Shell(object):
     @property
     def prompt(self):
         """Indicate to the user that the shell is waiting for a command."""
-        return "$"
+        return "$ "
 
     def output(self, msg):
         """Output a message."""
