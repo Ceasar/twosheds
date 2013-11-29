@@ -1,4 +1,3 @@
-from subprocess import check_output
 import os
 import readline
 import sys
@@ -47,7 +46,7 @@ class Completer(object):
         """
         head, tail = os.path.split(text)
 
-        filenames = check_output("ls %s" % head, shell=True).split()
+        filenames = os.listdir(head or ".")
 
         matches = [os.path.join(head, filename) for filename in filenames
                    if filename.startswith(tail)]
