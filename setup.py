@@ -1,18 +1,19 @@
 from setuptools import setup, find_packages
 
-__version_info__ = ('0', '0', '5')
+__version_info__ = ('0', '0', '6')
 __version__ = '.'.join(__version_info__)
 
 setup(
     name="twosheds",
     version=__version__,
-    description="extensible shell implemented in Python",
+    description="extensible Python shell",
+    # long_desription=(open('README.md').read()),
+    url="https://github.com/Ceasar/twosheds",
     author="Ceasar Bautista",
     author_email="cbautista2010@gmail.com",
-    url="https://github.com/Ceasar/twosheds",
+    license='MIT',
     keywords=["twosheds", "shell"],
-    packages=["twosheds"],
-    scripts=["scripts/twosheds"],
+    packages=find_packages(),
     classifiers=[
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
