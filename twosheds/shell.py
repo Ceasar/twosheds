@@ -63,15 +63,6 @@ class Shell(object):
                 new_tokens.append(v)
         return " ".join(new_tokens)
 
-    def _raise_cursor(self, n=1):
-        """Move the cursor up `n` lines."""
-        self.output('\033[%sA' % n)
-        sys.stdout.flush()
-
-    def _clear_line(self):
-        self.output('\033[K')
-        sys.stdout.flush()
-
     def eval(self, line):
         """Evaluate an input."""
         tokens = line.split()
