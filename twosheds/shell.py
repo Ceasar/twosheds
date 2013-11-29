@@ -80,7 +80,6 @@ class Shell(object):
                 if not line:
                     continue
                 self.eval(line)
-                self.after(line)
             except SystemExit:
                 break
             except:
