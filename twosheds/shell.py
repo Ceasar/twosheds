@@ -74,22 +74,21 @@ class Shell(object):
 
     def eval(self, line):
         """Evaluate an input."""
-        subprocess.call(line, shell=True)
+        tokens = line.split()
+        command, args = tokens[0], tokens[1:]
+        try:
+            self.builtins[command](*args)
+        except KeyError:
+            subprocess.call(line, shell=True)
 
     def interact(self):
-        """"""
+        """Interact with the user"""
         while True:
             try:
                 line = self.read()
                 if not line:
                     continue
-                tokens = line.split()
-                command, args = tokens[0], tokens[1:]
-                # handle any shell builtin commands
-                try:
-                    self.builtins[command](*args)
-                except KeyError:
-                    self.eval(line)
+                self.eval(line)
                 self.after(line)
             except SystemExit:
                 break
