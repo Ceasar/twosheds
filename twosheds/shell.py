@@ -72,8 +72,14 @@ class Shell(object):
         except KeyError:
             subprocess.call(line, shell=True)
 
-    def interact(self):
-        """Interact with the user"""
+    def interact(self, banner=None):
+        """Interact with the user.
+        
+        The optional banner argument specifies the banner to print before the
+        first interaction. By default, no banner is printed.
+        """
+        if banner:
+            print(banner)
         while True:
             try:
                 line = self.read()

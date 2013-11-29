@@ -17,5 +17,5 @@ class History(object):
     def save_history(self):
         readline.write_history_file(self.histfile)
 
-    def interact(self):
-        self.shell.interact()
+    def interact(self, banner=None):
+        self.shell.interact(banner)

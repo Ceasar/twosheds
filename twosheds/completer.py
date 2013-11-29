@@ -36,5 +36,5 @@ class Completer(object):
         except IndexError:
             return None
 
-    def interact(self):
-        self.shell.interact()
+    def interact(self, banner=None):
+        self.shell.interact(banner)
