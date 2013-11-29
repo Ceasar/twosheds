@@ -22,11 +22,9 @@ class Shell(object):
     """
     BUILTINS = {'cd': os.chdir}
 
-    def __init__(self, aliases=None, builtins=None,
-                 histfile=os.path.expanduser("~/.console-history")):
+    def __init__(self, aliases=None, builtins=None):
         self.aliases = aliases or {}
         self.builtins = builtins or self.BUILTINS
-        self.init_history(histfile)
 
     @property
     def prompt(self):
@@ -101,14 +99,3 @@ class Shell(object):
                 break
             except:
                 self.error(traceback.format_exc())
-
-    def init_history(self, histfile):
-        if hasattr(readline, "read_history_file"):
-            try:
-                readline.read_history_file(histfile)
-            except IOError:
-                pass
-            atexit.register(self.save_history, histfile)
-
-    def save_history(self, histfile):
-        readline.write_history_file(histfile)
