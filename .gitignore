@@ -1,2 +1,5 @@
+build/
+twosheds.egg-info/
 *.pyc
 *.~
+env/
