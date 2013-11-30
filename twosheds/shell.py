@@ -10,16 +10,17 @@
 import atexit
 import os
 import readline
-import sys
-import traceback
+
+from cli import CommandLineInterface
 
 DEFAULT_HISTFILE = os.path.expanduser("~/.console-history")
 
-class Shell(object):
+
+class Shell(CommandLineInterface):
     """The shell is an sh-compatible command language interpreter that executes
     commands read from standard input.
     """
-    def __init__(self, interpreter, histfile=DEFAULT_HISTFILE):
+    def __init__(self, interpreter, histfile=DEFAULT_HISTFILE, prompt="$ "):
         self.interpreter = interpreter
         self.histfile = histfile
         if hasattr(readline, "read_history_file"):
@@ -29,45 +30,8 @@ class Shell(object):
                 pass
             atexit.register(self._save_history)
 
-    @property
-    def prompt(self):
-        """Indicate to the user that the shell is waiting for a command."""
-        return "$ "
-
-    def output(self, msg):
-        """Output a message."""
-        sys.stdout.write(msg)
-
-    def error(self, msg):
-        """Output an error."""
-        sys.stderr.write(msg)
-
-    def read(self):
-        """Accept a command from the user."""
-        try:
-            return raw_input(self.prompt)
-        except EOFError:
-            raise SystemExit()
-
-    def eval(self, line):
-        """Evaluate a command."""
-        self.interpreter.run(line)
-
-    def interact(self, banner=None):
-        """Interact with the user.
-        
-        The optional banner argument specifies the banner to print before the
-        first interaction. By default, no banner is printed.
-        """
-        if banner:
-            print(banner)
-        while True:
-            try:
-                self.eval(self.read())
-            except SystemExit:
-                break
-            except:
-                self.error(traceback.format_exc())
-
     def _save_history(self):
         readline.write_history_file(self.histfile)
+
+    def eval(self, line):
+        return self.interpreter.run(line)
