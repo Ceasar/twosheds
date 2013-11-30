@@ -17,7 +17,7 @@ from .completer import Completer
 from .grammar import Grammar
 from .language import Language
 from .semantics import Semantics
-from .transformation import AliasTransformation, VariableTransformation
+from .transformation import AliasTransformation, TildeTransformation, VariableTransformation
 
 DEFAULT_HISTFILE = os.path.expanduser("~/.console-history")
 
@@ -38,7 +38,10 @@ class Shell(CommandLineInterface):
                  ):
         super(Shell, self).__init__(prompt)
 
-        transformations = [AliasTransformation(aliases), VariableTransformation()]
+        transformations = [AliasTransformation(aliases),
+                           TildeTransformation(),
+                           VariableTransformation(),
+                           ]
         grammar = Grammar(transformations)
         semantics = Semantics(builtins)
         self.language = Language(grammar, semantics)
