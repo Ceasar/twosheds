@@ -39,9 +39,14 @@ class Shell(object):
     def read(self):
         """Accept a command from the user."""
         try:
-            return self.expand(raw_input(self.prompt))
+            lines = self.lex(raw_input(self.prompt)).split(";")
+            for line in lines:
+                yield self.expand(line)
         except EOFError:
             raise SystemExit()
+
+    def lex(self, line):
+        return line.replace(";", " ; ")
 
     def expand_aliases(self, line):
         """Expand aliases in a line."""
@@ -92,7 +97,8 @@ class Shell(object):
             print(banner)
         while True:
             try:
-                self.eval(self.read())
+                for command in self.read():
+                    self.eval(command)
             except SystemExit:
                 break
             except:
