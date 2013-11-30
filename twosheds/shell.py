@@ -44,6 +44,7 @@ class Shell(object):
             raise SystemExit()
 
     def expand_aliases(self, line):
+        """Expand aliases in a line."""
         try:
             command, args = line.split(" ", 1)
         except ValueError:
@@ -53,21 +54,22 @@ class Shell(object):
         except KeyError:
             return line
 
-    def expand(self, line):
-        """Expand any macros in a command."""
-        line = self.expand_aliases(line)
+    def expand_variables(self, line):
+        """Expand environmental variables in a line."""
+        tokens = line.split()
         new_tokens = []
-        for token in line.split():
+        for token in tokens:
             if token.startswith("$"):
                 try:
-                    v = os.environ[token[1:]]
+                    token = os.environ[token[1:]]
                 except KeyError:
-                    new_tokens.append(token)
-                else:
-                    new_tokens.append(v)
-            else:
-                new_tokens.append(token)
+                    pass
+            new_tokens.append(token)
         return " ".join(new_tokens)
+
+    def expand(self, line):
+        """Expand any macros in a command."""
+        return self.expand_variables(self.expand_aliases(line))
 
     def eval(self, line):
         """Evaluate an input."""
