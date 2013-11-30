@@ -41,16 +41,9 @@ class VariableTransformation(Transformation):
     """Expands environmental variables."""
     def expand(self, sentence):
         """Expand environmental variables in a sentence."""
-        tokens = sentence.split()
-        new_tokens = []
-        for token in tokens:
-            if token.startswith("$"):
-                try:
-                    token = os.environ[token[1:]]
-                except KeyError:
-                    pass
-            new_tokens.append(token)
-        return " ".join(new_tokens)
+        for k, v in os.environ.iteritems():
+            sentence = sentence.replace("$" + k, v)
+        return sentence
 
 
 class TildeTransformation(Transformation):
