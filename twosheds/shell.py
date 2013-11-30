@@ -1,11 +1,9 @@
 """
+twosheds.shell
+~~~~~~~~~~~~~~
 
-    twosheds.shell
-    ~~~~~~~~~~~~~~
-
-    This module implements the central user interface for access to an
-    operating system's kernel services.
-
+This module implements the central user interface for access to an
+operating system's kernel services.
 """
 from __future__ import absolute_import
 
