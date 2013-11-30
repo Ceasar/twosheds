@@ -3,9 +3,10 @@ import os
 import readline
 
 
+DEFAULT_HISTFILE = os.path.expanduser("~/.console-history")
+
 class History(object):
-    def __init__(self, shell, histfile=os.path.expanduser("~/.console-history")):
-        self.shell = shell
+    def __init__(self, histfile=DEFAULT_HISTFILE):
         self.histfile = histfile
         if hasattr(readline, "read_history_file"):
             try:
@@ -16,6 +17,3 @@ class History(object):
 
     def save_history(self):
         readline.write_history_file(self.histfile)
-
-    def interact(self, banner=None):
-        self.shell.interact(banner)

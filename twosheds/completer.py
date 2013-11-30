@@ -67,15 +67,9 @@ class Completer(object):
     the completion completes on `foo', even though `food' and `foonly' also
     match.
     """
-    def __init__(self, shell, use_suffix=True, exclude=None):
-        self.shell = shell
+    def __init__(self, use_suffix=True, exclude=None):
         self.use_suffix = use_suffix
         self.exclude_patterns = exclude or []
-        if sys.platform == 'darwin':
-            readline.parse_and_bind("bind ^I rl_complete")
-        else:
-            readline.parse_and_bind("tab: complete")
-        readline.set_completer(self.complete)
 
     def inflect(self, filename):
         """Inflect a filename to indicate its type.
@@ -134,6 +128,3 @@ class Completer(object):
             return matches[state]
         except IndexError:
             return None
-
-    def interact(self, banner=None):
-        self.shell.interact(banner)

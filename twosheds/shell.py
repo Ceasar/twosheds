@@ -7,16 +7,27 @@
     operating system's kernel services.
 
 """
+import atexit
+import os
+import readline
 import sys
 import traceback
 
+DEFAULT_HISTFILE = os.path.expanduser("~/.console-history")
 
 class Shell(object):
     """The shell is an sh-compatible command language interpreter that executes
     commands read from standard input.
     """
-    def __init__(self, interpreter):
+    def __init__(self, interpreter, histfile=DEFAULT_HISTFILE):
         self.interpreter = interpreter
+        self.histfile = histfile
+        if hasattr(readline, "read_history_file"):
+            try:
+                readline.read_history_file(histfile)
+            except IOError:
+                pass
+            atexit.register(self._save_history)
 
     @property
     def prompt(self):
@@ -57,3 +68,6 @@ class Shell(object):
                 break
             except:
                 self.error(traceback.format_exc())
+
+    def _save_history(self):
+        readline.write_history_file(self.histfile)
