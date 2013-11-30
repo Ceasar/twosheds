@@ -15,7 +15,8 @@ import sys
 from .cli import CommandLineInterface
 from .completer import Completer
 from .grammar import Grammar
-from .interpreter import Interpreter
+from .language import Language
+from .semantics import Semantics
 from .transformation import AliasTransformation, VariableTransformation
 
 DEFAULT_HISTFILE = os.path.expanduser("~/.console-history")
@@ -39,7 +40,8 @@ class Shell(CommandLineInterface):
 
         transformations = [AliasTransformation(aliases), VariableTransformation()]
         grammar = Grammar(transformations)
-        self.interpreter = Interpreter(grammar, builtins)
+        semantics = Semantics(builtins)
+        self.language = Language(grammar, semantics)
 
         self.completer = Completer(use_suffix=use_suffix, exclude=exclude)
         readline.parse_and_bind("bind ^I rl_complete" if sys.platform == 'darwin'
@@ -57,5 +59,5 @@ class Shell(CommandLineInterface):
     def _save_history(self):
         readline.write_history_file(self.histfile)
 
-    def eval(self, line):
-        return self.interpreter.run(line)
+    def eval(self, text):
+        return self.language.interpret(text)
