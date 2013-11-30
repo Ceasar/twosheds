@@ -7,8 +7,6 @@
     operating system's kernel services.
 
 """
-import os
-import subprocess
 import sys
 import traceback
 
@@ -17,11 +15,8 @@ class Shell(object):
     """The shell is an sh-compatible command language interpreter that executes
     commands read from standard input.
     """
-    BUILTINS = {'cd': os.chdir}
-
-    def __init__(self, aliases=None, builtins=None):
-        self.aliases = aliases or {}
-        self.builtins = builtins or self.BUILTINS
+    def __init__(self, interpreter):
+        self.interpreter = interpreter
 
     @property
     def prompt(self):
@@ -39,53 +34,13 @@ class Shell(object):
     def read(self):
         """Accept a command from the user."""
         try:
-            lines = self.lex(raw_input(self.prompt)).split(";")
-            for line in lines:
-                yield self.expand(line)
+            return raw_input(self.prompt)
         except EOFError:
             raise SystemExit()
 
-    def lex(self, line):
-        return line.replace(";", " ; ")
-
-    def expand_aliases(self, line):
-        """Expand aliases in a line."""
-        try:
-            command, args = line.split(" ", 1)
-        except ValueError:
-            command, args = line, ""
-        try:
-            return "%s %s" % (self.aliases[command], args)
-        except KeyError:
-            return line
-
-    def expand_variables(self, line):
-        """Expand environmental variables in a line."""
-        tokens = line.split()
-        new_tokens = []
-        for token in tokens:
-            if token.startswith("$"):
-                try:
-                    token = os.environ[token[1:]]
-                except KeyError:
-                    pass
-            new_tokens.append(token)
-        return " ".join(new_tokens)
-
-    def expand(self, line):
-        """Expand any macros in a command."""
-        return self.expand_variables(self.expand_aliases(line))
-
     def eval(self, line):
-        """Evaluate an input."""
-        if not line:
-            return
-        tokens = line.split()
-        command, args = tokens[0], tokens[1:]
-        try:
-            self.builtins[command](*args)
-        except KeyError:
-            subprocess.call(line, shell=True)
+        """Evaluate a command."""
+        self.interpreter.run(line)
 
     def interact(self, banner=None):
         """Interact with the user.
@@ -97,8 +52,7 @@ class Shell(object):
             print(banner)
         while True:
             try:
-                for command in self.read():
-                    self.eval(command)
+                self.eval(self.read())
             except SystemExit:
                 break
             except:
