@@ -1,5 +1,5 @@
 #!/usr/bin/env python
 import twosheds
 
-shell = twosheds.get_shell()
+shell = twosheds.Shell()
 shell.interact()

@@ -8,8 +8,8 @@ class CommandLineInterface(object):
     """
     Basic read-eval-print loop.
     """
-    def __init__(self, prompt=DEFAULT_PROMPT):
-        self._prompt = prompt
+    def __init__(self, prompt=None):
+        self._prompt = prompt or DEFAULT_PROMPT
 
     @property
     def prompt(self):
