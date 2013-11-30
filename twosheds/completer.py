@@ -50,6 +50,22 @@ class Completer(object):
         condiments.h    main.c~
         $ emacs ma[tab]
         main.c
+
+    Completion will always happen on the shortest possible unique match, even
+    if more typing might result in a longer match. Therefore:
+
+        $ ls
+        fodder   foo      food     foonly
+        $ rm fo[tab]
+
+    just beeps, because `fo' could expand to `fod' or `foo', but if we type
+    another `o',
+
+        $ rm foo[tab]
+        $ rm foo
+
+    the completion completes on `foo', even though `food' and `foonly' also
+    match.
     """
     def __init__(self, shell, use_suffix=True, exclude=None):
         self.shell = shell
