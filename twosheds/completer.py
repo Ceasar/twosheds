@@ -67,7 +67,8 @@ class Completer(object):
     the completion completes on `foo', even though `food' and `foonly' also
     match.
     """
-    def __init__(self, use_suffix=True, exclude=None):
+    def __init__(self, grammar, use_suffix=True, exclude=None):
+        self.grammar = grammar
         self.use_suffix = use_suffix
         self.exclude_patterns = exclude or []
 
@@ -116,7 +117,7 @@ class Completer(object):
         
         The completion should begin with 'text'.
         """
-        matches = self.get_matches(text)
+        matches = self.get_matches(self.grammar.expand(text))
         # defend this against bad user input for regular expression patterns
         try:
             matches = list(self.exclude_matches(matches))

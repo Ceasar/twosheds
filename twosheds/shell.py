@@ -46,7 +46,7 @@ class Shell(CommandLineInterface):
         semantics = Semantics(builtins)
         self.language = Language(grammar, semantics)
 
-        self.completer = Completer(use_suffix=use_suffix, exclude=exclude)
+        self.completer = Completer(grammar, use_suffix=use_suffix, exclude=exclude)
         readline.parse_and_bind("bind ^I rl_complete" if sys.platform == 'darwin'
                                 else "tab: complete")
         readline.set_completer(self.completer.complete)
