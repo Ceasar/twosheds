@@ -73,6 +73,8 @@ class Shell(object):
 
     def eval(self, line):
         """Evaluate an input."""
+        if not line:
+            return
         tokens = line.split()
         command, args = tokens[0], tokens[1:]
         try:
@@ -90,10 +92,7 @@ class Shell(object):
             print(banner)
         while True:
             try:
-                line = self.read()
-                if not line:
-                    continue
-                self.eval(line)
+                self.eval(self.read())
             except SystemExit:
                 break
             except:
