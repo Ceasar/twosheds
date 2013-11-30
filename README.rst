@@ -1,6 +1,12 @@
 twosheds
 ========
 
+.. image:: https://badge.fury.io/py/twosheds.png
+    :target: http://badge.fury.io/py/twosheds
+
+.. image:: https://pypip.in/d/twosheds/badge.png
+        :target: https://crate.io/packages/twosheds/
+
 twosheds is a command language interpreter (shell), written in Python.
 
 Most existing shells are written in C which makes extension difficult. Python
