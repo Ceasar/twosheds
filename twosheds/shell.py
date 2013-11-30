@@ -1,11 +1,9 @@
 """
+twosheds.shell
+~~~~~~~~~~~~~~
 
-    twosheds.shell
-    ~~~~~~~~~~~~~~
-
-    This module implements the central user interface for access to an
-    operating system's kernel services.
-
+This module implements the central user interface for access to an
+operating system's kernel services.
 """
 from __future__ import absolute_import
 
@@ -16,7 +14,9 @@ import sys
 
 from .cli import CommandLineInterface
 from .completer import Completer
+from .grammar import Grammar
 from .interpreter import Interpreter
+from .transformation import AliasTransformation, VariableTransformation
 
 DEFAULT_HISTFILE = os.path.expanduser("~/.console-history")
 
@@ -37,7 +37,9 @@ class Shell(CommandLineInterface):
                  ):
         super(Shell, self).__init__(prompt)
 
-        self.interpreter = Interpreter(aliases, builtins)
+        transformations = [AliasTransformation(aliases), VariableTransformation()]
+        grammar = Grammar(transformations)
+        self.interpreter = Interpreter(grammar, builtins)
 
         self.completer = Completer(use_suffix=use_suffix, exclude=exclude)
         readline.parse_and_bind("bind ^I rl_complete" if sys.platform == 'darwin'
