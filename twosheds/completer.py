@@ -92,12 +92,18 @@ class Completer(object):
         filenames = os.listdir(head or '.')
 
         if tail:
-            return [os.path.join(head, filename) for filename in filenames
-                    if filename.startswith(tail)]
+            matches = [os.path.join(head, filename) for filename in filenames
+                       if filename.startswith(tail)]
         else:
             # do not show hidden files when listing contents of a directory
-            return [os.path.join(head, filename) for filename in filenames
-                    if not filename.startswith('.')]
+            matches = [os.path.join(head, filename) for filename in filenames
+                       if not filename.startswith('.')]
+        # return results that match anywhere in the file if no results are
+        # found
+        if not matches:
+            matches = [os.path.join(head, filename) for filename in filenames
+                       if tail in filename]
+        return matches
 
     def exclude_matches(self, matches):
         """Filter any matches that match an exclude pattern."""
