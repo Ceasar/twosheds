@@ -7,8 +7,10 @@
 
 """
 import os
+import re
 import readline
 import sys
+import traceback
 
 
 class Completer(object):
@@ -35,12 +37,24 @@ class Completer(object):
     The shell will list the remaining choices (if any) below the unfinished
     command line whenever completion fails, for example:
 
-        > ls /usr/l[tab]
+        $ ls /usr/l[tab]
         lbin/       lib/        local/      lost+found/
+
+    `excludes` can be set to a list of regular expression patterns to be
+    ignored by completion. Consider that the completer were initialized to
+    ignore [r'.*~', r'.*.o']:
+
+        $ ls
+        Makefile        condiments.h~   main.o          side.c
+        README          main.c          meal            side.o
+        condiments.h    main.c~
+        $ emacs ma[tab]
+        main.c
     """
-    def __init__(self, shell, use_suffix=True):
+    def __init__(self, shell, use_suffix=True, exclude=None):
         self.shell = shell
         self.use_suffix = use_suffix
+        self.exclude_patterns = exclude or []
         if sys.platform == 'darwin':
             readline.parse_and_bind("bind ^I rl_complete")
         else:
@@ -69,6 +83,15 @@ class Completer(object):
             return [os.path.join(head, filename) for filename in filenames
                     if not filename.startswith('.')]
 
+    def exclude_matches(self, matches):
+        """Filter any matches that match an exclude pattern."""
+        for match in matches:
+            for exclude_pattern in self.exclude_patterns:
+                if re.match(exclude_pattern, match) is not None:
+                    break
+            else:
+                yield match
+
     def complete(self, text, state):
         """Return the next possible completion for 'text'.
 
@@ -78,6 +101,11 @@ class Completer(object):
         The completion should begin with 'text'.
         """
         matches = self.get_matches(text)
+        # defend this against bad user input for regular expression patterns
+        try:
+            matches = list(self.exclude_matches(matches))
+        except:
+            sys.stderr.write(traceback.format_exc())
         if self.use_suffix:
             matches = [self.inflect(match) for match in matches]
         try:
