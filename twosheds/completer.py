@@ -80,9 +80,9 @@ class Completer(object):
         """
         return filename + ("/" if os.path.isdir(filename) else " ")
 
-    def get_matches(self, text):
+    def complete_filename(self, word):
         """Find all files that match `word`."""
-        head, tail = os.path.split(text)
+        head, tail = os.path.split(word)
 
         filenames = os.listdir(head or '.')
 
@@ -100,6 +100,20 @@ class Completer(object):
                        if tail in filename]
         return matches
 
+    def complete_variable(self, word):
+        """Get possible variable completions for ``word``.""" 
+        for k in os.environ:
+            if k.startswith(word):
+                yield k
+
+    def get_matches(self, word):
+        """Get possible completions for ``word``."""
+        for match in self.complete_filename(word):
+            yield match
+        if word.startswith("$"):
+            for match in self.complete_variable(word[1:]):
+                yield match
+
     def exclude_matches(self, matches):
         """Filter any matches that match an exclude pattern."""
         for match in matches:
@@ -109,6 +123,13 @@ class Completer(object):
             else:
                 yield match
 
+    def get_completion_word(self):
+        """Get the word to complete."""
+        line_buffer = readline.get_line_buffer()
+        sentence = self.grammar.expand(line_buffer)
+        tokens = sentence.split()
+        return tokens[-1] if tokens else ""
+
     def complete(self, text, state):
         """Return the next possible completion for 'text'.
 
@@ -117,15 +138,15 @@ class Completer(object):
         
         The completion should begin with 'text'.
         """
-        matches = self.get_matches(self.grammar.expand(text))
+        matches = self.get_matches(self.get_completion_word())
         # defend this against bad user input for regular expression patterns
         try:
-            matches = list(self.exclude_matches(matches))
+            matches = self.exclude_matches(matches)
         except:
             sys.stderr.write(traceback.format_exc())
         if self.use_suffix:
             matches = [self.inflect(match) for match in matches]
         try:
-            return matches[state]
+            return list(matches)[state]
         except IndexError:
             return None
