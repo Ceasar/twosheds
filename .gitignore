@@ -4,3 +4,4 @@ twosheds.egg-info/
 *.~
 env/
 dist/
+docs/_build/
