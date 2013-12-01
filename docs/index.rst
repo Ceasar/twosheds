@@ -8,8 +8,6 @@ twosheds
 
 twosheds is a library for making command language interpreters, or shells.
 
-Popular shells are almost exclusively written in C, and therefore are hard to extend.
-
 Most existing shells are written in C which makes extension difficult. Python
 is comparatively easy to learn, read, and write, and is fast enough to operate
 as a day-to-day shell.
