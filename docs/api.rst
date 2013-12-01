@@ -12,13 +12,8 @@ Main Interface
 
 All of twoshed's functionality can be accessed by an instance of the :class:`Shell <Shell>` object.
 
-Lower-Level Classes
-~~~~~~~~~~~~~~~~~~~
-
-.. autoclass:: twosheds.cli.CommandLineInterface
-   :inherited-members:
-
 .. autoclass:: twosheds.Shell
+   :inherited-members:
 
 Command Language
 ----------------
