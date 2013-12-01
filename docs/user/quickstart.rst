@@ -105,7 +105,7 @@ The prompt for twosheds is just a "$ ". We can change it by subclassing Shell::
     
         @property
         def prompt(self):
-            return os.getcwd() + " "
+            return os.getcwd().replace(os.environ["HOME"], "~") + " "
 
 This is a huge improvement over most ``$PS1`` variables.
 
