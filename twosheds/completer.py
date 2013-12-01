@@ -12,7 +12,6 @@ import readline
 import sys
 import traceback
 
-
 class Completer(object):
     """A completer completes words when given a unique abbreviation.
     
@@ -127,8 +126,11 @@ class Completer(object):
         """Get the word to complete."""
         line_buffer = readline.get_line_buffer()
         sentence = self.grammar.expand(line_buffer)
-        tokens = sentence.split()
-        return tokens[-1] if tokens else ""
+        if sentence.endswith(" "):
+            return ""
+        else:
+            tokens = sentence.split()
+            return tokens[-1] if tokens else ""
 
     def complete(self, text, state):
         """Return the next possible completion for 'text'.
