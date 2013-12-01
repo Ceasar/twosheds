@@ -35,7 +35,7 @@ You may need to `sudo` if you intend to install system wide.
 Documentation
 -------------
 
-Coming soon.
+Documentation is available at http://twosheds.readthedocs.org/en/latest/.
 
 
 Contribute
