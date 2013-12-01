@@ -3,3 +3,4 @@ twosheds.egg-info/
 *.pyc
 *.~
 env/
+dist/
