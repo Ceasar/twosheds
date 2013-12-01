@@ -8,7 +8,8 @@ evaluation.
 """
 
 class Grammar(object):
-    def __init__(self, transformations=None):
+    def __init__(self, echo=False, transformations=None):
+        self.echo = echo
         self.transformations = transformations or []
 
     def lex(self, text):
@@ -23,4 +24,7 @@ class Grammar(object):
     def parse(self, source_text):
         sentences = self.lex(source_text).split(";")
         for sentence in sentences:
-            yield self.expand(sentence)
+            expanded = self.expand(sentence)
+            if self.echo:
+                print expanded
+            yield expanded

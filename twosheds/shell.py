@@ -31,6 +31,7 @@ class Shell(CommandLineInterface):
     def __init__(self,
                  aliases=None,
                  builtins=None,
+                 echo=False,
                  prompt=None,
                  histfile=None,
                  use_suffix=True,
@@ -42,7 +43,7 @@ class Shell(CommandLineInterface):
                            TildeTransformation(),
                            VariableTransformation(),
                            ]
-        grammar = Grammar(transformations)
+        grammar = Grammar(echo=echo, transformations=transformations)
         semantics = Semantics(builtins)
         self.language = Language(grammar, semantics)
 
