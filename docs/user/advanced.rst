@@ -27,6 +27,31 @@ Note, twosheds is under active development, which means you'll almost
 certainly run into a problem from time-to-time. Fortunately, the shell is
 designed so that it should be possible to fix and contribute back! :)
 
+Add git branch to prompt
+------------------------
+
+Add the current git branch to the prompt::
+
+    class MyShell(twosheds.Shell):
+
+        @property
+        def git_branch(self):
+            """Get the current git branch or None."""
+            try:
+                check_output("git symbolic-ref --short HEAD 2> /dev/null",
+                             shell=True).strip()
+            except CalledProcessError:
+                return None
+
+        @property
+        def prompt(self):
+            pwd = os.getcwd().replace(os.environ["HOME"], "~")
+            branch = self.git_branch
+            if branch is not None:
+                return "%s(%s) " % (pwd, branch)
+            else:
+                return pwd + " "
+
 Automate ``ls``
 ---------------
 
