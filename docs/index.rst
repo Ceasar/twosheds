@@ -34,6 +34,17 @@ the most of twosheds.
    user/quickstart
    user/advanced
 
+Community Guide
+-----------------
+
+This part of the documentation, which is mostly prose, details the
+Requests ecosystem and community.
+
+.. toctree::
+   :maxdepth: 1
+
+   community/updates
+
 API Documentation
 -----------------
 
