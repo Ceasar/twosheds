@@ -74,3 +74,28 @@ This code reads the contents of the current directory before every command
 and checks if its different from whatever the contents were before the last
 command. If they're different, it runs ``ls``.
 
+Automate ``git status``
+-----------------------
+
+Automating `git status` is similar to automating `ls`::
+
+    from subprocess import check_output, CalledProcessError
+
+    import twosheds
+
+
+    class MyShell(twosheds.Shell):
+
+        last_gs = ""
+
+        def read(self):
+            try:
+                gs = check_output("git status 2> /dev/null", shell=True)
+            except CalledProcessError:
+                pass
+            else:
+                if gs != self.last_gs:
+                    self.last_gs = gs
+                    # show status concisely
+                    self.eval("git status -s")
+            return super(MyShell, self).read()
