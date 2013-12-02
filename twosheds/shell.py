@@ -7,19 +7,19 @@ operating system's kernel services.
 """
 from __future__ import absolute_import
 
-import atexit
 import os
 import readline
 import sys
+
+from rl import history
 
 from .cli import CommandLineInterface
 from .completer import Completer
 from .grammar import Grammar
 from .language import Language
 from .semantics import Semantics
-from .transformation import AliasTransformation, TildeTransformation, VariableTransformation
-
-DEFAULT_HISTFILE = os.path.expanduser("~/.console-history")
+from .transformation import (AliasTransformation, TildeTransformation,
+                             VariableTransformation, HistoryTransformation)
 
 
 class Shell(CommandLineInterface):
@@ -46,7 +46,7 @@ class Shell(CommandLineInterface):
 
         >>> import twosheds
         >>> shell = twosheds.Shell()
-        >>> shell.interact()
+        >>> shell.interact() # doctest: +SKIP
     """
     def __init__(self,
                  aliases=None,
@@ -59,10 +59,18 @@ class Shell(CommandLineInterface):
                  ):
         super(Shell, self).__init__(prompt)
 
-        transformations = [AliasTransformation(aliases),
-                           TildeTransformation(),
-                           VariableTransformation(),
-                           ]
+        self.history = history
+        try:
+            self.history.read_file(histfile)
+        except IOError:
+            pass
+
+        transformations = [
+            HistoryTransformation(),
+            AliasTransformation(aliases),
+            TildeTransformation(),
+            VariableTransformation(),
+        ]
         grammar = Grammar(echo=echo, transformations=transformations)
         semantics = Semantics(builtins)
         self.language = Language(grammar, semantics)
@@ -72,21 +80,11 @@ class Shell(CommandLineInterface):
                                 else "tab: complete")
         readline.set_completer(self.completer.complete)
 
-        self.histfile = histfile or DEFAULT_HISTFILE,
-        if hasattr(readline, "read_history_file"):
-            try:
-                readline.read_history_file(histfile)
-            except IOError:
-                pass
-            atexit.register(self._save_history)
-
-    def _save_history(self):
-        readline.write_history_file(self.histfile)
-
     def eval(self, text):
         """Interpret and respond to user input. Optionally returns a string to
         print to standard out.
         
         :param text: the user's input
         """
+        self.history.write_file()
         return self.language.interpret(text)
