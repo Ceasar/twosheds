@@ -6,9 +6,10 @@ This module implements command completion.
 """
 import os
 import re
-import readline
+import rl
 import sys
 import traceback
+
 
 class Completer(object):
     """A Completer completes words when given a unique abbreviation.
@@ -93,41 +94,23 @@ class Completer(object):
         :param word: the word to complete
         :param state: an int, used to iterate over the choices
         """
-        matches = self.gen_matches(self.get_completion_word())
-        # defend this against bad user input for regular expression patterns
+        # expand the line buffer before completing
+        rl.completion.line_buffer = self.grammar.transform(
+            rl.completion.line_buffer
+        )
+
+        # TODO: doing this manually right now, but may make sense to exploit
+        rl.completion.suppress_append = True
+        # rl.completion.filename_completion_desired = True
+
+        rl.completer.word_break_characters = (rl.completer
+                                              .word_break_characters
+                                              .replace("$", "")
+                                              .replace("/", ""))
         try:
-            matches = self.exclude_matches(matches)
-        except:
-            sys.stderr.write(traceback.format_exc())
-        if self.use_suffix:
-            matches = [self.inflect(match) for match in matches]
-        try:
-            return list(matches)[state]
+            return self.get_matches(word)[state]
         except IndexError:
             return None
-
-    def complete_filename(self, word):
-        """Return a list of filenames that match ``word``.
-        
-        :param word: the word to complete
-        """
-        head, tail = os.path.split(word)
-
-        filenames = os.listdir(head or '.')
-
-        if tail:
-            matches = [os.path.join(head, filename) for filename in filenames
-                       if filename.startswith(tail)]
-        else:
-            # do not show hidden files when listing contents of a directory
-            matches = [os.path.join(head, filename) for filename in filenames
-                       if not filename.startswith('.')]
-        # return results that match anywhere in the file if no results are
-        # found
-        if not matches:
-            matches = [os.path.join(head, filename) for filename in filenames
-                       if tail in filename]
-        return matches
 
     def exclude_matches(self, matches):
         """Filter any matches that match an exclude pattern.
@@ -141,35 +124,71 @@ class Completer(object):
             else:
                 yield match
 
+    def _is_hidden_file(self, filename):
+        return filename.startswith('.')
+
+    def gen_filename_completions(self, word, filenames):
+        """Generate a sequence of filenames that match ``word``.
+        
+        :param word: the word to complete
+        """
+        match_found = False
+        if word:
+            for filename in filenames:
+                if filename.startswith(word):
+                    match_found = True
+                    yield filename
+        else:
+            for filename in filenames:
+                if not self._is_hidden_file(filename):
+                    match_found = True
+                    yield filename
+        # return results that match anywhere in the file if no results are
+        # found
+        if not match_found:
+            for filename in filenames:
+                if word in filename:
+                    yield filename
+
     def gen_matches(self, word):
         """Generate a sequence of possible completions for ``word``.
         
         :param word: the word to complete
         """
-        for match in self.complete_filename(word):
-            yield match
-        if word.startswith("$"):
-            for match in self.gen_variable_completions(word[1:]):
-                yield match
 
-    def gen_variable_completions(self, word):
+        if word.startswith("$"):
+            for match in self.gen_variable_completions(word, os.environ):
+                yield match
+        else:
+            head, tail = os.path.split(word)
+            filenames = os.listdir(head or '.')
+            for match in self.gen_filename_completions(tail, filenames):
+                yield os.path.join(head, match)
+
+    def gen_variable_completions(self, word, env):
         """Generate a sequence of possible variable completions for ``word``.
         
         :param word: the word to complete
+        :param env: the environment
         """ 
-        for k in os.environ:
-            if k.startswith(word):
-                yield k
+        # ignore dollar
+        var = word[1:]
+        for k in env:
+            if k.startswith(var):
+                yield "$" + k
 
-    def get_completion_word(self):
-        """Get the word to complete."""
-        line_buffer = readline.get_line_buffer()
-        sentence = self.grammar.transform(line_buffer)
-        if sentence.endswith(" "):
-            return ""
+    def get_matches(self, word):
+        matches = self.gen_matches(word)
+        # defend this against bad user input for regular expression patterns
+        try:
+            matches = self.exclude_matches(matches)
+        except:
+            sys.stderr.write(traceback.format_exc())
+            return None
         else:
-            tokens = sentence.split()
-            return tokens[-1] if tokens else ""
+            if self.use_suffix:
+                matches = [self.inflect(match) for match in matches]
+            return list(matches)
 
     def inflect(self, filename):
         """Inflect a filename to indicate its type.

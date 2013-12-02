@@ -1,6 +1,9 @@
+import os
+
 import pytest
 
 from twosheds import Shell
+from twosheds.completer import Completer
 from twosheds.grammar import Grammar
 from twosheds.transform import (AliasTransform,
                                 VariableTransform,
@@ -13,6 +16,11 @@ def aliases():
         "ls": "ls -G",
         "home": "cd ~",
     }
+
+
+@pytest.fixture
+def completer(grammar):
+    return Completer(grammar)
 
 
 @pytest.fixture
@@ -129,3 +137,42 @@ def test_grammar_transform_inverse(grammar):
 def test_grammar_transform_id(grammar):
     text = "home"
     assert grammar.transform(grammar.transform(text), inverse=True) == text
+
+
+class TestCompleter():
+    def test_gen_filename_completions(self, completer):
+        word = "/d"
+        matches = completer.get_matches(word)
+        # assuming `/dev` exists
+        assert matches and all(list(m.startswith(word) for m in matches))
+
+    def test_gen_filename_completions_generic(self, completer):
+        word = "/"
+        matches = completer.get_matches(word)
+        # assuming something in `/` exists
+        assert matches and all(list(m.startswith(word) for m in matches))
+
+    def test_gen_filename_completions_no_match(self, completer):
+        word = "/qz"
+        matches = completer.get_matches(word)
+        # assuming user hasn't modified `/` to include something that starts
+        # with `qz`
+        assert len(matches) == 0
+
+    def test_gen_variable_completions(self, completer, environment):
+        # assuming $HOME is in environment
+        word = "$H"
+        matches = completer.get_matches(word)
+        assert matches and all(m.startswith(word) for m in matches)
+
+    def test_gen_variable_completions_generic(self, completer, environment):
+        # assuming something is in environment
+        word = "$"
+        matches = completer.get_matches(word)
+        assert matches and all(m.startswith(word) for m in matches)
+
+    def test_gen_variable_completions_no_match(self, completer, environment):
+        # assuming $QX.* is not in environment
+        word = "$QX"
+        matches = completer.get_matches(word)
+        assert len(matches) == 0

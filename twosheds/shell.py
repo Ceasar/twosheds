@@ -12,6 +12,8 @@ import os
 import readline
 import sys
 
+from rl import completer, completion
+
 from .cli import CommandLineInterface
 from .completer import Completer
 from .grammar import Grammar
@@ -87,9 +89,8 @@ class Shell(CommandLineInterface):
         :param banner: (optional) the banner to print before the first
                        interaction. Defaults to ``None``.
         """
-        readline.parse_and_bind("bind ^I rl_complete" if sys.platform == 'darwin'
-                                else "tab: complete")
-        readline.set_completer(self.completer.complete)
+        completer.parse_and_bind('TAB: complete')
+        completer.completer = self.completer.complete
         if hasattr(readline, "read_history_file"):
             try:
                 readline.read_history_file(self.histfile)
