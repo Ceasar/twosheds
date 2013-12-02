@@ -6,11 +6,22 @@
 twosheds
 ========
 
+Release v\ |version|. (:ref:`Installation <install>`)
+
 twosheds is a library for making command language interpreters, or shells.
 
 Most existing shells are written in C which makes extension difficult. Python
 is comparatively easy to learn, read, and write, and is fast enough to operate
-as a day-to-day shell.
+as a day-to-day shell::
+
+    >>> import twosheds
+    >>> shell = twosheds.Shell()
+    >>> shell.interact()
+    $ ls
+    AUTHORS.rst       build             requirements.txt  test_twosheds.py
+    LICENSE           dist              scripts           tests
+    Makefile          docs              setup.cfg         twosheds
+    README.rst        env               setup.py          twosheds.egg-info
 
 Features
 --------
