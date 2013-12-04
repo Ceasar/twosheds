@@ -7,24 +7,26 @@ converting user inputs into the kernel language and supplying sentences for
 evaluation.
 """
 
+
 class Grammar(object):
-    def __init__(self, echo=False, transformations=None):
+    def __init__(self, echo=False, transforms=None):
         self.echo = echo
-        self.transformations = transformations or []
+        self.transforms = transforms or []
 
     def lex(self, text):
         return text.replace(";", " ; ")
 
-    def expand(self, sentence):
-        """Rewrite a sentence to make it suitable for evaluation."""
-        for transformation in self.transformations:
-            sentence = transformation.decode(sentence)
+    def transform(self, sentence, inverse=False):
+        """Rewrite a sentence to a kernel sentence."""
+        transforms = reversed(self.transforms) if inverse else self.transforms
+        for transform in transforms:
+            sentence = transform(sentence)
         return sentence
 
     def parse(self, source_text):
         sentences = self.lex(source_text).split(";")
         for sentence in sentences:
-            expanded = self.expand(sentence)
+            transformation = self.transform(sentence)
             if self.echo:
-                print expanded
-            yield expanded
+                print transformation
+            yield transformation

@@ -1,0 +1,81 @@
+"""
+twosheds.transform
+~~~~~~~~~~~~~~~~~~
+
+This module implements a number of grammatical transforms.
+
+A grammatical transformation (or transformation) operates on a given
+string with a given constituent structure and converts it into a new
+string with a new derived constituent structure.
+"""
+
+
+class Transform(object):
+    def __call__(self, sentence, inverse=False):
+        raise NotImplementedError("Transformations must be callable.")
+
+
+class AliasTransform(Transform):
+    """
+    Expands user-defined aliases.
+
+    A token is a candidate for alias expansion only if it it the first
+    token in a sentence.
+
+    :param aliases: dictionary of aliases to expand
+    """
+    def __init__(self, aliases):
+        self.aliases = aliases or {}
+
+    def __call__(self, sentence, inverse=False):
+        if inverse:
+            for k, v in self.aliases.iteritems():
+                if sentence.startswith(v):
+                    sentence = sentence.replace(v, k)
+                    break
+            return sentence
+        else:
+            try:
+                command, args = sentence.split(" ", 1)
+            except ValueError:
+                command, args = sentence, ""
+            try:
+                if args:
+                    return "%s %s" % (self.aliases[command], args)
+                else:
+                    return "%s" % (self.aliases[command],)
+            except KeyError:
+                return sentence
+
+
+class VariableTransform(Transform):
+    """Expands environmental variables.
+    
+    :param environment: dictionary of variables to expand
+    """
+    def __init__(self, environment=None):
+        self.environment = environment or {}
+
+    def __call__(self, sentence, inverse=False):
+        if inverse:
+            for k, v in self.environment.iteritems():
+                if v in sentence:
+                    return sentence.replace(v, "$" + k)
+        else:
+            for k, v in self.environment.iteritems():
+                sentence = sentence.replace("$" + k, v)
+        return sentence
+
+
+class TildeTransform(Transform):
+    """Expand ``~`` to ``$HOME``"""
+    def __call__(self, sentence, inverse=False):
+        tokens = sentence.split()
+        TILDE = "~"
+        HOME = "$HOME"
+        source, target = (HOME, TILDE) if inverse else (TILDE, HOME)
+        return " ".join(
+            token.replace(source, target) if token.startswith(source)
+            else token
+            for token in tokens
+        )

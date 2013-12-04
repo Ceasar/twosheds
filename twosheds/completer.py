@@ -164,7 +164,7 @@ class Completer(object):
     def get_completion_word(self):
         """Get the word to complete."""
         line_buffer = readline.get_line_buffer()
-        sentence = self.grammar.expand(line_buffer)
+        sentence = self.grammar.transform(line_buffer)
         if sentence.endswith(" "):
             return ""
         else:
