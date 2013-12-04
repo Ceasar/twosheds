@@ -20,7 +20,7 @@ class Grammar(object):
         """Rewrite a sentence to a kernel sentence."""
         transforms = reversed(self.transforms) if inverse else self.transforms
         for transform in transforms:
-            sentence = transform(sentence)
+            sentence = transform(sentence, inverse)
         return sentence
 
     def parse(self, source_text):

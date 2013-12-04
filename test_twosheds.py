@@ -1,3 +1,4 @@
+from twosheds.grammar import Grammar
 from twosheds.transform import (AliasTransform,
                                 VariableTransform,
                                 TildeTransform,)
@@ -27,10 +28,24 @@ def test_alias_substitution_inverse():
     assert transformation(transformation(text), inverse=True) == text
 
 
-def test_variable_substitution_inverse():
-    environment = {"$HOME": "/user/twosheds"}
+def test_variable_substitution():
+    environment = {"HOME": "/user/twosheds"}
     transformation = VariableTransform(environment)
-    text = "$"
+    text = "cd $HOME"
+    assert transformation(text) == "cd /user/twosheds"
+
+
+def test_variable_substitution_inverse():
+    environment = {"HOME": "/user/twosheds"}
+    transformation = VariableTransform(environment)
+    text = "cd /user/twosheds"
+    assert transformation(text, inverse=True) == "cd $HOME"
+
+
+def test_variable_substitution_id():
+    environment = {"HOME": "/user/twosheds"}
+    transformation = VariableTransform(environment)
+    text = "$HOME"
     assert transformation(transformation(text), inverse=True) == text
 
 
@@ -56,3 +71,42 @@ def test_tilde_substitution_inverse():
     transformation = TildeTransform()
     text = "cd ~/Desktop"
     assert transformation(transformation(text), inverse=True) == text
+
+
+def test_grammar_expand_transform():
+    aliases = {"home": "cd ~"}
+    environment = {"HOME": "/user/twosheds"}
+    transforms = [
+        AliasTransform(aliases),
+        TildeTransform(),
+        VariableTransform(environment),
+    ]
+    text = "home"
+    grammar = Grammar(transforms=transforms)
+    assert grammar.transform(text) == "cd /user/twosheds"
+
+
+def test_grammar_expand_inverse():
+    aliases = {"home": "cd ~"}
+    environment = {"HOME": "/user/twosheds"}
+    transforms = [
+        AliasTransform(aliases),
+        TildeTransform(),
+        VariableTransform(environment),
+    ]
+    text = "cd /user/twosheds"
+    grammar = Grammar(transforms=transforms)
+    assert grammar.transform(text, inverse=True) == "home"
+
+
+def test_grammar_expand_id():
+    aliases = {"home": "cd ~"}
+    environment = {"HOME": "/user/twosheds"}
+    transforms = [
+        AliasTransform(aliases),
+        TildeTransform(),
+        VariableTransform(environment),
+    ]
+    text = "home"
+    grammar = Grammar(transforms=transforms)
+    assert grammar.transform(grammar.transform(text), inverse=True) == text
