@@ -18,7 +18,7 @@ class Grammar(object):
     def expand(self, sentence):
         """Rewrite a sentence to make it suitable for evaluation."""
         for transformation in self.transformations:
-            sentence = transformation.expand(sentence)
+            sentence = transformation.decode(sentence)
         return sentence
 
     def parse(self, source_text):
