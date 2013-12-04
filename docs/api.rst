@@ -27,17 +27,8 @@ Command Language
 .. autoclass:: twosheds.semantics.Semantics
    :inherited-members:
 
-Transformations
-~~~~~~~~~~~~~~~
-
-.. autoclass:: twosheds.transformation.AliasTransformation
-   :inherited-members:
-
-.. autoclass:: twosheds.transformation.VariableTransformation
-   :inherited-members:
-
-.. autoclass:: twosheds.transformation.TildeTransformation
-   :inherited-members:
+.. automodule:: twosheds.transform
+   :members:
 
 Completion
 ----------
