@@ -4,7 +4,10 @@ init:
 	pip install -r requirements.txt
 
 test:
-	py.test --doctest-modules --ignore setup.py
+	py.test
+
+interact:
+	./scripts/twosheds
 
 install:
 	python setup.py install -f

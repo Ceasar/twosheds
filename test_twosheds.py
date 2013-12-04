@@ -54,7 +54,7 @@ def shell():
 
 
 def test_shell(shell):
-    assert shell.eval("echo") == 0
+    assert shell.eval("echo") is None
 
 def test_alias_substitution1(alias_transform):
     """Alias substitution should expand aliases."""

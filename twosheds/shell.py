@@ -68,7 +68,7 @@ class Shell(CommandLineInterface):
         self.language = Language(grammar, semantics)
         self.completer = Completer(grammar, use_suffix=use_suffix,
                                    exclude=exclude)
-        self.histfile = histfile or DEFAULT_HISTFILE,
+        self.histfile = histfile or DEFAULT_HISTFILE
 
     def _save_history(self):
         readline.write_history_file(self.histfile)
@@ -79,7 +79,7 @@ class Shell(CommandLineInterface):
         
         :param text: the user's input
         """
-        return self.language.interpret(text) or 0
+        return self.language.interpret(text)
 
     def interact(self):
         """Interact with the user.
@@ -96,3 +96,4 @@ class Shell(CommandLineInterface):
             except IOError:
                 pass
             atexit.register(self._save_history)
+        super(Shell, self).interact()
