@@ -82,6 +82,11 @@ class Shell(CommandLineInterface):
         return self.language.interpret(text) or 0
 
     def interact(self):
+        """Interact with the user.
+        
+        :param banner: (optional) the banner to print before the first
+                       interaction. Defaults to ``None``.
+        """
         readline.parse_and_bind("bind ^I rl_complete" if sys.platform == 'darwin'
                                 else "tab: complete")
         readline.set_completer(self.completer.complete)
