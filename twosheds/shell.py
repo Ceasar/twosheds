@@ -81,7 +81,7 @@ class Shell(CommandLineInterface):
         """
         return self.language.interpret(text)
 
-    def interact(self):
+    def interact(self, banner=None):
         """Interact with the user.
         
         :param banner: (optional) the banner to print before the first
@@ -96,4 +96,4 @@ class Shell(CommandLineInterface):
             except IOError:
                 pass
             atexit.register(self._save_history)
-        super(Shell, self).interact()
+        super(Shell, self).interact(banner)
