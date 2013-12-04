@@ -61,8 +61,7 @@ class Shell(CommandLineInterface):
 
         transforms = [
             AliasTransform(aliases),
-            TildeTransform(),
-            VariableTransform(os.environ),
+            TildeTransform(VariableTransform(os.environ)),
         ]
         grammar = Grammar(echo=echo, transforms=transforms)
         semantics = Semantics(builtins)

@@ -72,8 +72,22 @@ class VariableTransform(Transform):
 
 
 class TildeTransform(Transform):
-    """Expand ``~`` to ``$HOME``"""
-    def __call__(self, sentence, inverse=False):
+    """
+    Decorator for :class:`VariableTransform <transform.VariableTransform>`
+    
+    Expands ``~`` to ``$HOME``
+
+    >>> t = TildeTransform(lambda s, i: s)
+    >>> t("~")
+    '$HOME'
+
+    :param variable_transform: the :class:`VariableTransform
+                               <transform.VariableTransform>` to decorate
+    """
+    def __init__(self, variable_transform):
+        self.variable_transform = variable_transform
+
+    def _transform(self, sentence, inverse=False):
         tokens = sentence.split()
         TILDE = "~"
         HOME = "$HOME"
@@ -83,3 +97,11 @@ class TildeTransform(Transform):
             else token
             for token in tokens
         )
+
+    def __call__(self, sentence, inverse=False):
+        if inverse:
+            replacement = self.variable_transform(sentence, inverse)
+            return self._transform(replacement, inverse)
+        else:
+            replacement = self._transform(sentence, inverse)
+            return self.variable_transform(replacement, inverse)
