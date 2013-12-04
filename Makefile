@@ -4,7 +4,7 @@ init:
 	pip install -r requirements.txt
 
 test:
-	py.test
+	py.test --doctest-modules --ignore setup.py
 
 install:
 	python setup.py install -f

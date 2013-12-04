@@ -19,12 +19,21 @@ class AliasTransform(Transform):
     """
     Expands user-defined aliases.
 
-    A token is a candidate for alias expansion only if it it the first
-    token in a sentence.
+    >>> aliases = {'ls': 'ls -G'}
+    >>> t = AliasTransform(aliases)
+    >>> t('ls')
+    'ls -G'
+    >>> t('ls -G', inverse=True)
+    'ls'
+
+    A token is a candidate for alias expansion only if it is a command.
+
+    >>> t('echo ls')  # no effect
+    'echo ls'
 
     :param aliases: dictionary of aliases to expand
     """
-    def __init__(self, aliases):
+    def __init__(self, aliases=None):
         self.aliases = aliases or {}
 
     def __call__(self, sentence, inverse=False):
@@ -52,6 +61,13 @@ class VariableTransform(Transform):
     """Expands environmental variables.
 
     Variable substitutions are made in order of the length of the expansion.
+
+    >>> env = {'HOME': '/Users/arthurjackson'}
+    >>> t = VariableTransform(env)
+    >>> t('cd $HOME')
+    'cd /Users/arthurjackson'
+    >>> t('cd /Users/arthurjackson', inverse=True)
+    'cd $HOME'
     
     :param environment: dictionary of variables to expand
     """
@@ -73,16 +89,18 @@ class VariableTransform(Transform):
 
 class TildeTransform(Transform):
     """
-    Decorator for :class:`VariableTransform <transform.VariableTransform>`
+    Decorator for :class:`VariableTransform <VariableTransform>`.
     
-    Expands ``~`` to ``$HOME``
+    Expands ``~`` to ``$HOME``.
 
     >>> t = TildeTransform(lambda s, i: s)
     >>> t("~")
     '$HOME'
+    >>> t("$HOME", inverse=True)
+    '~'
 
-    :param variable_transform: the :class:`VariableTransform
-                               <transform.VariableTransform>` to decorate
+    :param variable_transform: the :class:`VariableTransform <VariableTransform>`
+                               to decorate
     """
     def __init__(self, variable_transform):
         self.variable_transform = variable_transform

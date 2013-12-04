@@ -46,7 +46,7 @@ class Shell(CommandLineInterface):
 
         >>> import twosheds
         >>> shell = twosheds.Shell()
-        >>> shell.interact()
+        >>> shell.interact()  # doctest: +SKIP
     """
     def __init__(self,
                  aliases=None,
