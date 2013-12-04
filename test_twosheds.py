@@ -1,5 +1,6 @@
 import pytest
 
+from twosheds import Shell
 from twosheds.grammar import Grammar
 from twosheds.transform import (AliasTransform,
                                 VariableTransform,
@@ -46,6 +47,14 @@ def grammar(alias_transform, tilde_transform, variable_transform):
     ]
     return Grammar(transforms=transforms)
 
+
+@pytest.fixture
+def shell():
+    return Shell()
+
+
+def test_shell(shell):
+    assert shell.eval("echo") == 0
 
 def test_alias_substitution1(alias_transform):
     """Alias substitution should expand aliases."""

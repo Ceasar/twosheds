@@ -67,19 +67,9 @@ class Shell(CommandLineInterface):
         grammar = Grammar(echo=echo, transforms=transforms)
         semantics = Semantics(builtins)
         self.language = Language(grammar, semantics)
-
-        self.completer = Completer(grammar, use_suffix=use_suffix, exclude=exclude)
-        readline.parse_and_bind("bind ^I rl_complete" if sys.platform == 'darwin'
-                                else "tab: complete")
-        readline.set_completer(self.completer.complete)
-
+        self.completer = Completer(grammar, use_suffix=use_suffix,
+                                   exclude=exclude)
         self.histfile = histfile or DEFAULT_HISTFILE,
-        if hasattr(readline, "read_history_file"):
-            try:
-                readline.read_history_file(histfile)
-            except IOError:
-                pass
-            atexit.register(self._save_history)
 
     def _save_history(self):
         readline.write_history_file(self.histfile)
@@ -90,4 +80,15 @@ class Shell(CommandLineInterface):
         
         :param text: the user's input
         """
-        return self.language.interpret(text)
+        return self.language.interpret(text) or 0
+
+    def interact(self):
+        readline.parse_and_bind("bind ^I rl_complete" if sys.platform == 'darwin'
+                                else "tab: complete")
+        readline.set_completer(self.completer.complete)
+        if hasattr(readline, "read_history_file"):
+            try:
+                readline.read_history_file(self.histfile)
+            except IOError:
+                pass
+            atexit.register(self._save_history)
