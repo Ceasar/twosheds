@@ -42,6 +42,17 @@ def test_variable_substitution_inverse():
     assert transformation(text, inverse=True) == "cd $HOME"
 
 
+def test_variable_substitution_order():
+    """Variable substitution should substitute longer values first."""
+    environment = {
+        "HOME": "/user/twosheds",
+        "LOGNAME": "twosheds",
+    }
+    transformation = VariableTransform(environment)
+    text = "cd /user/twosheds"
+    assert transformation(text, inverse=True) == "cd $HOME"
+
+
 def test_variable_substitution_id():
     environment = {"HOME": "/user/twosheds"}
     transformation = VariableTransform(environment)

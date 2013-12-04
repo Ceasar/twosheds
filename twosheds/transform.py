@@ -50,6 +50,8 @@ class AliasTransform(Transform):
 
 class VariableTransform(Transform):
     """Expands environmental variables.
+
+    Variable substitutions are made in order of the length of the expansion.
     
     :param environment: dictionary of variables to expand
     """
@@ -57,12 +59,14 @@ class VariableTransform(Transform):
         self.environment = environment or {}
 
     def __call__(self, sentence, inverse=False):
+        env_vars = self.environment.items()
+        env_vars.sort(key=lambda (_, v): len(v), reverse=True)
         if inverse:
-            for k, v in self.environment.iteritems():
+            for k, v in env_vars:
                 if v in sentence:
                     return sentence.replace(v, "$" + k)
         else:
-            for k, v in self.environment.iteritems():
+            for k, v in env_vars:
                 sentence = sentence.replace("$" + k, v)
         return sentence
 
