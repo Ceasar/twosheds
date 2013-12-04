@@ -49,4 +49,6 @@ class VariableTransformation(Transformation):
 class TildeTransformation(Transformation):
     """Expands ``~`` to ``$HOME``"""
     def expand(self, sentence):
-        return sentence.replace("~", "$HOME")
+        tokens = sentence.split()
+        return " ".join(token.replace("~", "$HOME") if token.startswith("~")
+                        else token for token in tokens)
