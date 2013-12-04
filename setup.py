@@ -1,11 +1,10 @@
 from setuptools import setup, find_packages
 
-__version_info__ = ('0', '1', '0')
-__version__ = '.'.join(__version_info__)
+import twosheds
 
 setup(
     name="twosheds",
-    version=__version__,
+    version=twosheds.__version__,
     description="extensible Python shell",
     # long_desription=(open('README.md').read()),
     url="https://github.com/Ceasar/twosheds",
