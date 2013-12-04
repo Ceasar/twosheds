@@ -7,7 +7,7 @@ twosheds
 .. image:: https://pypip.in/d/twosheds/badge.png
         :target: https://crate.io/packages/twosheds/
 
-twosheds [*]_ is a command language interpreter (shell), written in Python.
+twosheds [1]_ is a command language interpreter (shell), written in Python.
 
 Most existing shells are written in C which makes extension difficult. Python
 is comparatively easy to learn, read, and write, and is fast enough to operate
@@ -55,6 +55,6 @@ Contribute
 #. Write a test which shows that the bug was fixed or that the feature works as expected.
 #. Send a pull request and bug the maintainer until its get merged and published. :) Make sure to add yourself to AUTHORS_.
 
-.. [*] http://www.youtube.com/watch?v=HLjS3gzHetA
+.. [1] http://www.youtube.com/watch?v=HLjS3gzHetA
 .. _`the repository`: http://github.com/Ceasar/twosheds
 .. _`AUTHORS`: https://github.com/Ceasar/twosheds/blob/master/AUTHORS.rst
