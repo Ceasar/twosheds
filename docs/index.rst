@@ -52,6 +52,7 @@ Requests ecosystem and community.
 .. toctree::
    :maxdepth: 1
 
+   community/support
    community/updates
 
 API Documentation
