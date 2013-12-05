@@ -7,27 +7,37 @@ twosheds
 .. image:: https://pypip.in/d/twosheds/badge.png
         :target: https://crate.io/packages/twosheds/
 
-twosheds is a command language interpreter (shell), written in Python.
+twosheds is a library, written in Python, for making command language
+interpreters, or shells.
 
-Most existing shells are written in C which makes extension difficult. Python
-is comparatively easy to learn, read, and write, and is fast enough to operate
-as a day-to-day shell::
+Shells like bash are very powerful, but they require you to learn C or clunky
+domain-specific scripting languages to extend and customize. twosheds lets you
+write your own shell, in Python, which means you can customize it completely:
+
+.. code:: python
 
     >>> import twosheds
     >>> shell = twosheds.Shell()
     >>> shell.interact()
+    $ whoami
+    arthurjackson
     $ ls
     AUTHORS.rst       build             requirements.txt  test_twosheds.py
     LICENSE           dist              scripts           tests
     Makefile          docs              setup.cfg         twosheds
     README.rst        env               setup.py          twosheds.egg-info
 
+`Get started now. <quickstart_>`_
+
+
 Features
 --------
 
-- Highly extensible
+- Substitution
 - History
-- Completion
+- Tab completion
+- Highly extensible
+
 
 Installation
 ------------
@@ -37,8 +47,6 @@ To install twosheds, simply:
 .. code-block:: bash
 
     $ pip install twosheds
-
-You may need to `sudo` if you intend to install system wide.
 
 
 Documentation
@@ -55,5 +63,6 @@ Contribute
 #. Write a test which shows that the bug was fixed or that the feature works as expected.
 #. Send a pull request and bug the maintainer until its get merged and published. :) Make sure to add yourself to AUTHORS_.
 
+.. _quickstart: http://twosheds.readthedocs.org/en/latest/user/quickstart.html
 .. _`the repository`: http://github.com/Ceasar/twosheds
 .. _`AUTHORS`: https://github.com/Ceasar/twosheds/blob/master/AUTHORS.rst
