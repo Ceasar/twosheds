@@ -27,7 +27,7 @@ write your own shell, in Python, which means you can customize it completely:
     Makefile          docs              setup.cfg         twosheds
     README.rst        env               setup.py          twosheds.egg-info
 
-`Get started now. <quickstart_>`_
+`Get started now. <http://twosheds.readthedocs.org/en/latest/user/quickstart.html>`_
 
 
 Features
@@ -90,7 +90,6 @@ I'm more than happy to answer any personal or in-depth questions about
 twosheds. Feel free to email `cbautista@gmail.com <mail_>`_.
 
 
-.. _quickstart: http://twosheds.readthedocs.org/en/latest/user/quickstart.html
 .. _`the repository`: http://github.com/Ceasar/twosheds
 .. _`AUTHORS`: https://github.com/Ceasar/twosheds/blob/master/AUTHORS.rst
 .. _@Ceasar_Bautista: https://twitter.com/Ceasar_Bautista
