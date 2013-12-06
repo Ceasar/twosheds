@@ -38,8 +38,8 @@ Add the current git branch to the prompt::
         def git_branch(self):
             """Get the current git branch or None."""
             try:
-                check_output("git symbolic-ref --short HEAD 2> /dev/null",
-                             shell=True).strip()
+                return check_output("git symbolic-ref --short HEAD 2> /dev/null",
+                                    shell=True).strip()
             except CalledProcessError:
                 return None
 
