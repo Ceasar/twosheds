@@ -1,6 +1,7 @@
 import pytest
 
 from twosheds import Shell
+from twosheds.lexicon import Lexicon
 from twosheds.grammar import Grammar
 from twosheds.transform import (AliasTransform,
                                 VariableTransform,
@@ -37,6 +38,9 @@ def variable_transform(environment):
 def tilde_transform(variable_transform):
     return TildeTransform(variable_transform)
 
+@pytest.fixture
+def lexicon():
+    return Lexicon()
 
 @pytest.fixture
 def grammar(alias_transform, tilde_transform, variable_transform):
@@ -114,6 +118,11 @@ def test_tilde_substitution_inverse(tilde_transform):
     """Tilde substitution should have an inverse."""
     text = "cd ~/Desktop"
     assert tilde_transform(tilde_transform(text), inverse=True) == text
+
+
+def test_lexicon_lex(lexicon):
+    text = "ls -a ~"
+    assert lexicon.lex(text) == ['ls', '-a', '~']
 
 
 def test_grammar_transform(grammar):

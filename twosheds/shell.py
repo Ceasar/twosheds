@@ -14,6 +14,7 @@ import sys
 
 from .cli import CommandLineInterface
 from .completer import Completer
+from .lexicon import Lexicon
 from .grammar import Grammar
 from .language import Language
 from .semantics import Semantics
@@ -64,8 +65,7 @@ class Shell(CommandLineInterface):
             TildeTransform(VariableTransform(os.environ)),
         ]
         grammar = Grammar(echo=echo, transforms=transforms)
-        semantics = Semantics(builtins)
-        self.language = Language(grammar, semantics)
+        self.language = Language(Lexicon(), grammar, Semantics(builtins))
         self.completer = Completer(grammar, use_suffix=use_suffix,
                                    exclude=exclude)
         self.histfile = histfile or DEFAULT_HISTFILE

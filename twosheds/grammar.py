@@ -7,14 +7,10 @@ converting user inputs into the kernel language and supplying sentences for
 evaluation.
 """
 
-
 class Grammar(object):
     def __init__(self, echo=False, transforms=None):
         self.echo = echo
         self.transforms = transforms or []
-
-    def lex(self, text):
-        return text.replace(";", " ; ")
 
     def transform(self, sentence, inverse=False):
         """Rewrite a sentence to a kernel sentence."""
@@ -23,10 +19,20 @@ class Grammar(object):
             sentence = transform(sentence, inverse)
         return sentence
 
-    def parse(self, source_text):
-        sentences = self.lex(source_text).split(";")
+    def _gen_sentences(self, tokens):
+        sentence = []
+        for token in tokens:
+            if token == ";":
+                yield sentence
+                sentence = []
+            else:
+                sentence.append(token)
+        yield sentence
+
+    def parse(self, tokens):
+        sentences = self._gen_sentences(tokens)
         for sentence in sentences:
-            transformation = self.transform(sentence)
+            transformation = self.transform(" ".join(sentence))
             if self.echo:
                 print transformation
             yield transformation
