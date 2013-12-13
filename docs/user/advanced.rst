@@ -113,14 +113,17 @@ Automating `git status` is similar to automating `ls`::
 
         last_gs = ""
 
-        def read(self):
+        @property
+        def git_status(self):
             try:
-                gs = check_output("git status 2> /dev/null", shell=True)
+                return check_output("git status --porcelain 2> /dev/null", shell=True)
             except CalledProcessError:
-                pass
-            else:
-                if gs != self.last_gs:
-                    self.last_gs = gs
-                    # show status concisely
-                    self.eval("git status -s")
+                return None
+
+        def read(self):
+            gs = self.git_status
+            if gs is not None and gs != self.last_gs:
+                self.last_gs = gs
+                # show status concisely
+                self.eval("git status -s")
             return super(MyShell, self).read()
