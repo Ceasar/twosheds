@@ -140,24 +140,19 @@ def test_grammar_transform_id(grammar):
 
 
 class TestCompleter():
-    def test_gen_filename_completions(self, completer):
-        word = "/d"
-        matches = completer.get_matches(word)
-        # assuming `/dev` exists
-        assert matches and all(list(m.startswith(word) for m in matches))
-
-    def test_gen_filename_completions_generic(self, completer):
-        word = "/"
-        matches = completer.get_matches(word)
-        # assuming something in `/` exists
-        assert matches and all(list(m.startswith(word) for m in matches))
-
-    def test_gen_filename_completions_no_match(self, completer):
-        word = "/qz"
-        matches = completer.get_matches(word)
-        # assuming user hasn't modified `/` to include something that starts
-        # with `qz`
-        assert len(matches) == 0
+    def test_gen_filename_completions(self, completer, tmpdir):
+        os.chdir(str(tmpdir))
+        tmpdir.join('README.rst').write('')
+        tmpdir.mkdir('dev')
+        tmpdir.mkdir('foo bar')
+        matches = completer.get_matches('')
+        assert ['dev/', 'foo\\ bar/', 'README.rst '] == matches
+        matches = completer.get_matches('d')
+        assert ['dev/'] == matches
+        matches = completer.get_matches('bar')
+        assert ['foo\\ bar/'] == matches
+        matches = completer.get_matches('z')
+        assert [] == matches
 
     def test_gen_variable_completions(self, completer, environment):
         # assuming $HOME is in environment

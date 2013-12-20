@@ -188,7 +188,7 @@ class Completer(object):
         else:
             if self.use_suffix:
                 matches = [self.inflect(match) for match in matches]
-            return list(matches)
+            return matches
 
     def inflect(self, filename):
         """Inflect a filename to indicate its type.
@@ -198,4 +198,8 @@ class Completer(object):
 
         :param filename: the name of the file to inflect
         """
-        return filename + ("/" if os.path.isdir(filename) else " ")
+        suffix = ("/" if os.path.isdir(filename) else " ")
+        return self._escape(filename) + suffix
+
+    def _escape(self, path):
+        return path.replace(" ", "\\ ")
