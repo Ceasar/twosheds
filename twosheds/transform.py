@@ -93,23 +93,20 @@ class TildeTransform(Transform):
     
     Expands ``~`` to ``$HOME``.
 
-    >>> t = TildeTransform(lambda s, i: s)
+    >>> t = TildeTransform('/user/twosheds')
     >>> t("~")
-    '$HOME'
-    >>> t("$HOME", inverse=True)
+    '/user/twosheds'
+    >>> t("/user/twosheds", inverse=True)
     '~'
 
-    :param variable_transform: the :class:`VariableTransform <VariableTransform>`
-                               to decorate
     """
-    def __init__(self, variable_transform):
-        self.variable_transform = variable_transform
+    def __init__(self, home):
+        self.home = home
 
     def _transform(self, sentence, inverse=False):
         tokens = sentence.split()
         TILDE = "~"
-        HOME = "$HOME"
-        source, target = (HOME, TILDE) if inverse else (TILDE, HOME)
+        source, target = (self.home, TILDE) if inverse else (TILDE, self.home)
         return " ".join(
             token.replace(source, target) if token.startswith(source)
             else token
@@ -117,9 +114,4 @@ class TildeTransform(Transform):
         )
 
     def __call__(self, sentence, inverse=False):
-        if inverse:
-            replacement = self.variable_transform(sentence, inverse)
-            return self._transform(replacement, inverse)
-        else:
-            replacement = self._transform(sentence, inverse)
-            return self.variable_transform(replacement, inverse)
+        return self._transform(sentence, inverse)

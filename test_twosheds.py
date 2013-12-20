@@ -42,16 +42,16 @@ def variable_transform(environment):
 
 
 @pytest.fixture
-def tilde_transform(variable_transform):
-    return TildeTransform(variable_transform)
+def tilde_transform(environment):
+    return TildeTransform(environment['HOME'])
 
 
 @pytest.fixture
 def grammar(alias_transform, tilde_transform, variable_transform):
     transforms = [
         alias_transform,
-        tilde_transform,
         variable_transform,
+        tilde_transform,
     ]
     return Grammar(transforms=transforms)
 
@@ -105,6 +105,8 @@ def test_variable_substitution_id(variable_transform):
 
 def test_tilde_substitution1(tilde_transform, environment):
     """Tilde substitution should expand ``~`` as ``$HOME``."""
+    text = "cd ~"
+    assert tilde_transform(text) == "cd %s" % environment['HOME']
     text = "cd ~/Desktop"
     assert tilde_transform(text) == "cd %s/Desktop" % environment['HOME']
 
@@ -120,7 +122,7 @@ def test_tilde_substitution2(tilde_transform):
 
 def test_tilde_substitution_inverse(tilde_transform):
     """Tilde substitution should have an inverse."""
-    text = "cd ~/Desktop"
+    text = "~"
     assert tilde_transform(tilde_transform(text), inverse=True) == text
 
 
