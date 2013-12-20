@@ -22,7 +22,6 @@ class Semantics(object):
             return
         tokens = shlex.split(sentence)
         command, args = tokens[0], tokens[1:]
-        print tokens
         try:
             self.builtins[command](*args)
         except KeyError:
