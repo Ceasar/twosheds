@@ -94,13 +94,6 @@ class Completer(object):
         :param word: the word to complete
         :param state: an int, used to iterate over the choices
         """
-        # expand the line buffer before completing
-        """
-        rl.completion.line_buffer = self.grammar.transform(
-            rl.completion.line_buffer
-        )
-        """
-
         # TODO: doing this manually right now, but may make sense to exploit
         rl.completion.suppress_append = True
         # rl.completion.filename_completion_desired = True
