@@ -95,9 +95,11 @@ class Completer(object):
         :param state: an int, used to iterate over the choices
         """
         # expand the line buffer before completing
+        """
         rl.completion.line_buffer = self.grammar.transform(
             rl.completion.line_buffer
         )
+        """
 
         # TODO: doing this manually right now, but may make sense to exploit
         rl.completion.suppress_append = True
@@ -105,10 +107,14 @@ class Completer(object):
 
         rl.completer.word_break_characters = (rl.completer
                                               .word_break_characters
+                                              .replace("~", "")
                                               .replace("$", "")
-                                              .replace("/", ""))
+                                              .replace("/", "")
+                                              )
+        word = self.grammar.transform(word)
         try:
-            return self.get_matches(word)[state]
+            return self.grammar.transform(self.get_matches(word)[state],
+                                          inverse=True)
         except IndexError:
             return None
 
