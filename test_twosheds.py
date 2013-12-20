@@ -9,6 +9,9 @@ from twosheds.transform import (AliasTransform,
                                 VariableTransform,
                                 TildeTransform,)
 
+EDITOR = "vim"
+HOME = os.environ['HOME']
+LOGNAME = os.environ['LOGNAME']
 
 @pytest.fixture
 def aliases():
@@ -26,8 +29,9 @@ def completer(grammar):
 @pytest.fixture
 def environment():
     return {
-        "HOME": "/user/twosheds",
-        "LOGNAME": "twosheds",
+        "EDITOR": EDITOR,
+        "HOME": HOME,
+        "LOGNAME": LOGNAME,
     }
 
 
@@ -84,17 +88,17 @@ def test_alias_substitution_inverse(alias_transform):
 
 def test_variable_substitution(variable_transform):
     text = "cd $HOME"
-    assert variable_transform(text) == "cd /user/twosheds"
+    assert variable_transform(text) == "cd %s" % HOME
 
 
 def test_variable_substitution_inverse(variable_transform):
-    text = "cd /user/twosheds"
+    text = "cd %s" % HOME
     assert variable_transform(text, inverse=True) == "cd $HOME"
 
 
 def test_variable_substitution_order(variable_transform):
     """Variable substitution should substitute longer values first."""
-    text = "cd /user/twosheds"
+    text = "cd %s" % HOME
     assert variable_transform(text, inverse=True) == "cd $HOME"
 
 
@@ -128,11 +132,11 @@ def test_tilde_substitution_inverse(tilde_transform):
 
 def test_grammar_transform(grammar):
     text = "home"
-    assert grammar.transform(text) == "cd /user/twosheds"
+    assert grammar.transform(text) == "cd %s" % HOME
 
 
 def test_grammar_transform_inverse(grammar):
-    text = "cd /user/twosheds"
+    text = "cd %s" % HOME
     assert grammar.transform(text, inverse=True) == "home"
 
 
