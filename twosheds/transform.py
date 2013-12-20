@@ -57,6 +57,11 @@ class AliasTransform(Transform):
                 return sentence
 
 
+def is_variable(token):
+    """Check if a token is a variable."""
+    return token.startswith('$')
+
+
 class VariableTransform(Transform):
     """Expands environmental variables.
 
@@ -74,17 +79,29 @@ class VariableTransform(Transform):
     def __init__(self, environment=None):
         self.environment = environment or {}
 
-    def __call__(self, sentence, inverse=False):
-        env_vars = self.environment.items()
-        env_vars.sort(key=lambda (_, v): len(v), reverse=True)
+    @property
+    def _inverse_environment(self):
+        # NOTE: This will be unreliable if two variables have the same value.
+        return {v: k for k, v in self.environment.items()}
+
+    def _transform(self, tokens, inverse=False):
+        inverse_environment = self._inverse_environment
         if inverse:
-            for k, v in env_vars:
-                if v in sentence:
-                    return sentence.replace(v, "$" + k)
+            for token in tokens:
+                try:
+                    yield "$" + inverse_environment[token]
+                except KeyError:
+                    yield token
         else:
-            for k, v in env_vars:
-                sentence = sentence.replace("$" + k, v)
-        return sentence
+            for token in tokens:
+                if is_variable(token):
+                    yield self.environment.get(token[1:], token)
+                else:
+                    yield token
+
+    def __call__(self, sentence, inverse=False):
+        tokens = sentence.split()
+        return " ".join(self._transform(tokens, inverse))
 
 
 class TildeTransform(Transform):

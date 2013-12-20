@@ -96,6 +96,20 @@ def test_variable_substitution_inverse(variable_transform):
     assert variable_transform(text, inverse=True) == "cd $HOME"
 
 
+def test_variable_substitution_only_at_start(variable_transform):
+    """
+    Expansion of variables should only happen if token starts with a variable.
+
+    Thus, assuming "$EDITOR" is a variable, "$EDITOR" should be expanded, but "x$EDITOR" should not.
+    
+    Thus if "EDITOR=vim", expansion of "xvim" should do nothing,
+    not replace with 'f$EDITOR'.
+    """
+    text = 'x$EDITOR'
+    assert variable_transform(text) == text
+    text = 'x%s' % EDITOR
+    assert variable_transform(text, inverse=True) == text
+
 def test_variable_substitution_order(variable_transform):
     """Variable substitution should substitute longer values first."""
     text = "cd %s" % HOME
