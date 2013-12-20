@@ -6,6 +6,7 @@ This module implements a semantics for user inputs. It is responsible for
 evaluating user inputs in the kernel language.
 """
 import os
+import shlex
 import subprocess
 
 
@@ -19,8 +20,9 @@ class Semantics(object):
         """Evaluate a single command."""
         if not sentence:
             return
-        tokens = sentence.split()
+        tokens = shlex.split(sentence)
         command, args = tokens[0], tokens[1:]
+        print tokens
         try:
             self.builtins[command](*args)
         except KeyError:
