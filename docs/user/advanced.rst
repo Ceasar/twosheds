@@ -3,29 +3,39 @@
 Advanced
 ========
 
-This section of the docs shows how to do some useful but advanced things
-with twosheds.
+This section of the docs shows you how to do useful but advanced things with
+twosheds.
 
-Change your default shell
--------------------------
+Change your login shell
+-----------------------
 
-If you're serious about the shell you just wrote, you can replace the current
-one you're using in no time. Assuming your shell is named ``shell``::
+Replacing your login shell the shell you just wrote is simple.
 
-    $ cat /etc/shells >> $HOME/shell
+Let's assume your shell is named ``$HOME/shell``. First you need to add your
+shell to the list of valid shells, and then you need to actually change it.
+
+To add your shell to the list of valid shells, you need to add it to
+``/etc/shells``, a list of paths to valid login shells on the system. By
+default, it looks something like this::
+
+    # List of acceptable shells for chpass(1).
+    # Ftpd will not allow users to connect who are not using
+    # one of these shells.
+
+    /bin/bash
+    /bin/csh
+    /bin/ksh
+    /bin/sh
+    /bin/tcsh
+    /bin/zsh
+
+So to add your shell, simply::
+
+    $ sudo cat $HOME/shell >> /etc/shells
+
+Finally, change your login shell::
+
     $ chsh -s $HOME/shell
-
-Before doing so however, you should make a new project on GitHub and add
-your code to version control.
-
-Once done, you can use your shell from ``$HOME`` by just symlinking it back::
-
-    $ git clone git@github.com:Ceasar/my_shell.git
-    $ ln -s my_shell/shell shell
-
-Note, twosheds is under active development, which means you'll almost
-certainly run into a problem from time-to-time. Fortunately, the shell is
-designed so that it should be possible to fix and contribute back! :)
 
 Add git branch to prompt
 ------------------------
