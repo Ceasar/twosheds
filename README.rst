@@ -10,9 +10,9 @@ twosheds
 twosheds is a library, written in Python, for making command language
 interpreters, or shells.
 
-Shells like bash are very powerful, but they require you to learn C or clunky
-domain-specific scripting languages to extend and customize. twosheds lets you
-write your own shell, in Python, which means you can customize it completely:
+While shells like bash and zsh are powerful, extending them and customizing them
+is hard; you need to write in inexpressive arcane languages, such as bash script
+or C. twosheds helps you write and customize your own shell, in pure Python:
 
 .. code:: python
 
@@ -31,16 +31,19 @@ write your own shell, in Python, which means you can customize it completely:
 
 
 Features
---------
+--------------------------------------------------------------------------------
 
 - Substitution
+
 - History
+
 - Tab completion
+
 - Highly extensible
 
 
 Installation
-------------
+--------------------------------------------------------------------------------
 
 To install twosheds, simply:
 
@@ -60,22 +63,29 @@ Contribute
 
 twosheds is under active development and contributions are especially welcome.
 
-#. Check for open issues or open a fresh issue to start a discussion around a feature idea or a bug.
-#. Fork `the repository`_ on GitHub to start making your changes to the **master** branch (or branch off it).
-#. Write a test which shows that the bug was fixed or that the feature works as expected.
-#. Send a pull request and bug the maintainer until its get merged and published. :) Make sure to add yourself to AUTHORS_.
+#. Check for open issues or open a fresh issue to start a discussion around a
+   feature idea or a bug.
+
+#. Fork `the repository`_ on GitHub to start making your changes to the
+   **master** branch (or branch off it).
+
+#. Write a test which shows that the bug was fixed or that the feature works as
+   expected.
+
+#. Send a pull request and bug the maintainer until its get merged and
+   published. Make sure to add yourself to AUTHORS_. :)
 
 
 Support
--------
+--------------------------------------------------------------------------------
 
 If you have questions or issues about twosheds, there are several options:
 
 Send a Tweet
 ~~~~~~~~~~~~
 
-If your question is less than 140 characters, feel free to send a tweet to
-`@Ceasar_Bautista`_.
+If your question is less than 140 characters, feel free to tweet at the
+maintainer, `@Ceasar_Bautista`_.
 
 File an Issue
 ~~~~~~~~~~~~~

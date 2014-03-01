@@ -10,9 +10,11 @@ Release v\ |version|. (:ref:`Installation <install>`)
 
 twosheds is a library for making command language interpreters, or shells.
 
-Most existing shells are written in C which makes extension difficult. Python
-is comparatively easy to learn, read, and write, and is fast enough to operate
-as a day-to-day shell::
+While shells like bash and zsh are powerful, extending them and customizing them
+is hard; you need to write in arcane inexpressive languages, such as bash script
+or C. twosheds helps you write and customize your own shell, in pure Python:
+
+.. code:: python
 
     >>> import twosheds
     >>> shell = twosheds.Shell()
