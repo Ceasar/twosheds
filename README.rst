@@ -91,17 +91,17 @@ File an Issue
 ~~~~~~~~~~~~~
 
 If you notice some unexpected behavior in twosheds, or want to see support for
-a new feature, `file an issue on GitHub <issues_>`_.
+a new feature, `file an issue on GitHub issues`_.
 
 E-mail
 ~~~~~~
 
-I'm more than happy to answer any personal or in-depth questions about
-twosheds. Feel free to email `cbautista@gmail.com <mail_>`_.
+I'm more than happy to answer any personal or in-depth questions about twosheds.
+Feel free to email `cbautista@gmail.com`_.
 
 
 .. _`the repository`: http://github.com/Ceasar/twosheds
 .. _`AUTHORS`: https://github.com/Ceasar/twosheds/blob/master/AUTHORS.rst
 .. _@Ceasar_Bautista: https://twitter.com/Ceasar_Bautista
-.. _issues: https://github.com/Ceasar/twosheds/issues
-.. _mail: mailto:cbautista@gmail.com
+.. _file an issue on Github issues: https://github.com/Ceasar/twosheds/issues
+.. _cbautista@gmail.com: mailto:cbautista@gmail.com
