@@ -5,6 +5,7 @@ import pytest
 from twosheds import Shell
 from twosheds.completer import Completer
 from twosheds.grammar import Grammar
+from twosheds.semantics import Semantics
 from twosheds.transform import (AliasTransform,
                                 VariableTransform,
                                 TildeTransform,)
@@ -63,6 +64,10 @@ def grammar(alias_transform, tilde_transform, variable_transform):
 @pytest.fixture
 def shell():
     return Shell()
+
+@pytest.fixture
+def semantics():
+    return Semantics()
 
 
 def test_shell(shell):
@@ -157,6 +162,16 @@ def test_grammar_transform_inverse(grammar):
 def test_grammar_transform_id(grammar):
     text = "home"
     assert grammar.transform(grammar.transform(text), inverse=True) == text
+
+
+def test_semantics_export(semantics):
+    assert "X" not in os.environ
+    assert "Y" not in os.environ
+    semantics.eval_sentence("export X=1 Y=2")
+    assert os.environ["X"] == "1"
+    assert os.environ["Y"] == "2"
+    del os.environ["X"]
+    del os.environ["Y"]
 
 
 class TestCompleter():
