@@ -10,8 +10,21 @@ import shlex
 import subprocess
 
 
+def cd(*args):
+    os.chdir(*args)
+
+
+def export(*args):
+    for arg in args:
+        k, v = arg.split("=", 1)
+        os.environ[k] = v
+
+
 class Semantics(object):
-    BUILTINS = {'cd': os.chdir}
+    BUILTINS = {
+        'cd': cd,
+        'export': export,
+    }
 
     def __init__(self, builtins=None):
         self.builtins = builtins or self.BUILTINS
@@ -25,7 +38,8 @@ class Semantics(object):
         try:
             self.builtins[command](*args)
         except KeyError:
-            subprocess.call(sentence, shell=True)
+            process = subprocess.Popen(sentence, shell=True)
+            process.communicate()
 
     def eval(self, sentences):
         """Evaluate a sequence of commands."""
