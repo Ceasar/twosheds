@@ -10,6 +10,8 @@ import rl
 import sys
 import traceback
 
+from .transform import transform
+
 
 class Completer(object):
     """A Completer completes words when given a unique abbreviation.
@@ -70,7 +72,6 @@ class Completer(object):
             $ emacs ma[tab]
             main.c
 
-    :param grammar: A :class:`Grammar <grammar.Grammar>` to expand aliases.
     :param use_suffix: add a ``/`` to completed directories and a space to the
                        end of other completed words, to speed typing and
                        provide a visual indicator of successful completion.
@@ -78,8 +79,8 @@ class Completer(object):
     :param excludes: a list of regular expression patterns to be ignored by
                      completion. 
     """
-    def __init__(self, grammar, use_suffix=True, exclude=None):
-        self.grammar = grammar
+    def __init__(self, transforms, use_suffix=True, exclude=None):
+        self.transforms = transforms
         self.use_suffix = use_suffix
         self.exclude_patterns = exclude or []
 
@@ -104,10 +105,10 @@ class Completer(object):
                                               .replace("$", "")
                                               .replace("/", "")
                                               )
-        word = self.grammar.transform(word)
+        word = transform(word, self.transforms)
         try:
-            return self.grammar.transform(self.get_matches(word)[state],
-                                          inverse=True)
+            match = self.get_matches(word)[state]
+            return transform(match, self.transforms, inverse=True)
         except IndexError:
             return None
 

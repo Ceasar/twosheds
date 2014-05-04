@@ -10,16 +10,16 @@ from __future__ import absolute_import
 import atexit
 import os
 import readline
-import sys
 
 from rl import completer, completion
 
+from .builtins import cd, export
 from .cli import CommandLineInterface
 from .completer import Completer
-from .grammar import Grammar
-from .language import Language
-from .semantics import Semantics
-from .transform import AliasTransform, TildeTransform, VariableTransform
+from .kernel import Kernel
+from .request import Request
+from .transform import (transform, AliasTransform, TildeTransform,
+                        VariableTransform)
 
 DEFAULT_HISTFILE = os.path.expanduser("~/.console-history")
 
@@ -50,9 +50,16 @@ class Shell(CommandLineInterface):
         >>> shell = twosheds.Shell()
         >>> shell.interact()  # doctest: +SKIP
     """
+    # Marks the boundary between sentences
+    SEP = ";"
+
+    commands = {
+        'cd': cd,
+        'export': export,
+    }
+
     def __init__(self,
                  aliases=None,
-                 builtins=None,
                  echo=False,
                  prompt=None,
                  histfile=None,
@@ -60,33 +67,47 @@ class Shell(CommandLineInterface):
                  exclude=None,
                  ):
         super(Shell, self).__init__(prompt)
-
-        transforms = [
+        self.transforms = [
             AliasTransform(aliases),
             VariableTransform(os.environ),
             TildeTransform(os.environ['HOME']),
         ]
-        grammar = Grammar(echo=echo, transforms=transforms)
-        semantics = Semantics(builtins)
-        self.language = Language(grammar, semantics)
-        self.completer = Completer(grammar, use_suffix=use_suffix,
-                                   exclude=exclude)
+        self.completer = Completer(
+            transforms=self.transforms,
+            use_suffix=use_suffix,
+            exclude=exclude
+        )
+        self.echo = echo
         self.histfile = histfile or DEFAULT_HISTFILE
+        self.kernel = Kernel()
 
     def _save_history(self):
         readline.write_history_file(self.histfile)
 
-    def eval(self, text):
-        """Interpret and respond to user input. Optionally returns a string to
-        print to standard out.
-        
+    def eval(self, source_text):
+        """Interpret the user's requests and respond to them.
+
         :param text: the user's input
         """
-        return self.language.interpret(text)
+        for request in self.interpret(source_text):
+            self.respond(request)
+
+    def interpret(self, source_text):
+        """Interpret the user's requests.
+
+        :param text: the user's input
+        """
+        sentences = source_text.split(self.SEP)
+        for sentence in sentences:
+            if sentence:
+                kernel_sentence = transform(sentence, self.transforms)
+                if self.echo:
+                    print kernel_sentence
+                yield Request(kernel_sentence)
 
     def interact(self, banner=None):
         """Interact with the user.
-        
+
         :param banner: (optional) the banner to print before the first
                        interaction. Defaults to ``None``.
         """
@@ -99,3 +120,22 @@ class Shell(CommandLineInterface):
                 pass
             atexit.register(self._save_history)
         super(Shell, self).interact(banner)
+
+    def respond(self, request):
+        """Respond to the user's request.
+
+        :param request: the user's request
+        """
+        try:
+            self.commands[request.command](*request.args)
+        except KeyError:
+            self.kernel.respond(request)
+
+    def add_command(self, command, func):
+        self.commands[command] = func
+
+    def command(self, command):
+        def decoractor(f):
+            self.add_command(command, f)
+            return f
+        return decoractor
