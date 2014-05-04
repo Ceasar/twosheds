@@ -10,6 +10,14 @@ string with a new derived constituent structure.
 """
 
 
+def transform(sentence, transforms, inverse=False):
+    """Rewrite a sentence to a kernel sentence."""
+    transforms = reversed(transforms) if inverse else transforms
+    for transform in transforms:
+        sentence = transform(sentence, inverse)
+    return sentence
+
+
 class Transform(object):
     def __call__(self, sentence, inverse=False):
         raise NotImplementedError("Transformations must be callable.")
