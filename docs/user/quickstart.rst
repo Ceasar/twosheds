@@ -28,7 +28,7 @@ Configuring a shell
 
 If we want to configure our shell, it's useful to store our code in a script::
 
-    #!/usr/bin/env python
+    #!/usr/bin/env python -i
     import twosheds
 
 
@@ -94,19 +94,15 @@ Make sure to insert code like this before you execute ``interact``.
 Change the prompt
 -----------------
 
-The prompt for twosheds is just a "$ ". We can change it by subclassing Shell::
+The default prompt for twosheds is just ``$ ``. We can change that by setting
+``$PS1`` before each interaction::
 
     import os
 
-    import twosheds
+    @shell.before_request
+    def primary_prompt_string():
+        os.environ["PS1"] = os.getcwd().replace(os.environ["HOME"], "~") + " "
 
-
-    class MyShell(twosheds.Shell):
-    
-        @property
-        def prompt(self):
-            return os.getcwd().replace(os.environ["HOME"], "~") + " "
-
-This is a huge improvement over most ``$PS1`` variables.
-
-The prompt property is read whenever a prompt is written.
+This may be more typing then the ``export PS1=\w`` equivalent in `bash`, but
+it is easier to follow what is happening, which becomes important as the prompt
+becomes more complex.

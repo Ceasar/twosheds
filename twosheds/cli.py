@@ -12,6 +12,8 @@ class CommandLineInterface(object):
     """
     def __init__(self, environ):
         self.environ = environ
+        self._before_request_funcs = []
+        self._after_request_funcs = []
 
     @property
     def primary_prompt_string(self):
@@ -77,6 +79,8 @@ class CommandLineInterface(object):
         if banner:
             print(banner)
         while True:
+            for f in self._before_request_funcs:
+                f()
             try:
                 response = self.eval(self.read())
                 if response is not None:
@@ -85,3 +89,27 @@ class CommandLineInterface(object):
                 break
             except:
                 self.error(traceback.format_exc())
+            for f in self._after_request_funcs:
+                f()
+
+    def before_request(self, f):
+        """Register a function to be run before each interaction.
+
+        :param f:
+            The function to run after each request. This function must not take
+            any parameters.
+
+        """
+        self._before_request_funcs.append(f)
+        return f
+
+    def after_request(self, f):
+        """Register a function to be run after each interaction.
+
+        :param f:
+            The function to run after each request. This function must not take
+            any parameters.
+
+        """
+        self._after_request_funcs.append(f)
+        return f

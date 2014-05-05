@@ -42,25 +42,23 @@ Add git branch to prompt
 
 Add the current git branch to the prompt::
 
-    class MyShell(twosheds.Shell):
+    def git_branch():
+        """Get the current git branch or None."""
+        try:
+            return check_output("git symbolic-ref --short HEAD 2> /dev/null",
+                                shell=True).strip()
+        except CalledProcessError:
+            return None
 
-        @property
-        def git_branch(self):
-            """Get the current git branch or None."""
-            try:
-                return check_output("git symbolic-ref --short HEAD 2> /dev/null",
-                                    shell=True).strip()
-            except CalledProcessError:
-                return None
+    @shell.before_request
+    def primary_prompt_string():
+        os.environ["PS1"] = os.getcwd().replace(os.environ["HOME"], "~") + " "
 
-        @property
-        def prompt(self):
-            pwd = os.getcwd().replace(os.environ["HOME"], "~")
-            branch = self.git_branch
-            if branch is not None:
-                return "%s(%s) " % (pwd, branch)
-            else:
-                return pwd + " "
+    def prompt():
+        pwd = os.getcwd().replace(os.environ["HOME"], "~")
+        branch = git_branch()
+        ps1 = "%s " % pwd if branch is None else "%s(%s) " % (pwd, branch)
+        os.environ["PS1"] = ps1
 
 Automate ``ls``
 ---------------
@@ -94,16 +92,17 @@ With twosheds it's *much* simpler::
     import twosheds
 
 
-    class MyShell(twosheds.Shell):
+    shell = twosheds.Shell()
+    last_ls = ""
 
-        last = ""
 
-        def read(self):
-            ls = check_output("ls", shell=True)
-            if ls != self.last:
-                self.last = ls
-                self.eval("ls")
-            return super(MyShell, self).read()
+    @shell.before_request
+    def ls()
+        global last_ls
+        ls = check_output("ls", shell=True)
+        if ls != last_ls:
+            last_ls = ls
+            shell.eval("ls")
 
 This code reads the contents of the current directory before every command
 and checks if its different from whatever the contents were before the last
@@ -119,21 +118,19 @@ Automating `git status` is similar to automating `ls`::
     import twosheds
 
 
-    class MyShell(twosheds.Shell):
+    shell = twosheds.Shell()
+    last_gs = ""
 
-        last_gs = ""
 
-        @property
-        def git_status(self):
-            try:
-                return check_output("git status --porcelain 2> /dev/null", shell=True)
-            except CalledProcessError:
-                return None
-
-        def read(self):
-            gs = self.git_status
-            if gs is not None and gs != self.last_gs:
-                self.last_gs = gs
+    @shell.before_request
+    def gs():
+        global last_gs
+        try:
+            gs = check_output("git status --porcelain 2> /dev/null", shell=True)
+        except CalledProcessError:
+            pass
+        else:
+            if gs != last_gs:
+                last_gs = gs
                 # show status concisely
-                self.eval("git status -s")
-            return super(MyShell, self).read()
+                shell.eval("git status -s")
