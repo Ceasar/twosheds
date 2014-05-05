@@ -12,6 +12,9 @@ class CommandLineInterface(object):
         a dictionary containing environmental variables
 
     """
+    # Marks the boundary between sentences
+    SEP = ";"
+
     def __init__(self, environ):
         self.environ = environ
         self._kernel = Kernel()
@@ -41,23 +44,63 @@ class CommandLineInterface(object):
             > -m
             x86_64
 
-        Returns a string containing the user's command.
+        Returns a strings containing the user's input.
         """
         try:
             line = raw_input(self.primary_prompt_string)
             while line.endswith("\\"):
                 line = line[:-1] + raw_input(self.secondary_prompt_string)
-            return line
         except EOFError:
             raise SystemExit()
+        else:
+            return line
 
-    def eval(self, text):
-        """Interpret and respond to user input. Optionally returns a string to
-        print to standard out.
+    def interpret(self, text):
+        """Interpret the user's input.
 
         :param text: the user's input
         """
-        return self._kernel.respond(text)
+        return text.split(self.SEP)
+
+    def respond(self, sentence):
+        """Respond to command from the user. Optionally returns a string to
+        print to standard out.
+
+        :param sentence: the user's command
+        """
+        return self._kernel.respond(sentence)
+
+    def eval(self, text):
+        """Respond to text entered by the user.
+
+        :param text: the user's input
+        """
+        for sentence in self.interpret(text):
+            if sentence:
+                try:
+                    response = self.respond(sentence)
+                except SystemExit:
+                    break
+                except:
+                    self.error(traceback.format_exc())
+                else:
+                    if response is not None:
+                        self.output(response)
+
+    def interact(self, banner=None):
+        """Interact with the user.
+
+        :param banner: (optional) the banner to print before the first
+                       interaction. Defaults to ``None``.
+        """
+        if banner:
+            print(banner)
+        while True:
+            for f in self._before_request_funcs:
+                f()
+            self.eval(self.read())
+            for f in self._after_request_funcs:
+                f()
 
     def output(self, msg):
         """Output a message.
@@ -72,29 +115,6 @@ class CommandLineInterface(object):
         :param msg: a string to print to standard error
         """
         sys.stderr.write(msg)
-
-    def interact(self, banner=None):
-        """Interact with the user.
-
-        :param banner: (optional) the banner to print before the first
-                       interaction. Defaults to ``None``.
-        """
-        if banner:
-            print(banner)
-        while True:
-            for f in self._before_request_funcs:
-                f()
-            try:
-                response = self.eval(self.read())
-            except SystemExit:
-                break
-            except:
-                self.error(traceback.format_exc())
-            else:
-                if response is not None:
-                    self.output(response)
-            for f in self._after_request_funcs:
-                f()
 
     def before_request(self, f):
         """Register a function to be run before each interaction.

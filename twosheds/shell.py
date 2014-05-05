@@ -48,8 +48,6 @@ class Shell(CommandLineInterface):
         >>> shell = twosheds.Shell()
         >>> shell.interact()  # doctest: +SKIP
     """
-    # Marks the boundary between sentences
-    SEP = ";"
 
     commands = {
         'cd': cd,
@@ -81,29 +79,18 @@ class Shell(CommandLineInterface):
     def _save_history(self):
         readline.write_history_file(self.histfile)
 
-    def eval(self, text):
-        """Interpret the user's requests and respond to them.
-
-        :param text: the user's input
-        """
-        for request in self.interpret(text):
-            try:
-                self.commands[request.command](*request.args)
-            except KeyError:
-                super(Shell, self).eval(request.text)
-
     def interpret(self, text):
-        """Interpret the user's requests.
+        for sentence in super(Shell, self).interpret(text):
+            yield transform(sentence, self.transforms)
 
-        :param text: the user's input
-        """
-        sentences = text.split(self.SEP)
-        for sentence in sentences:
-            if sentence:
-                kernel_sentence = transform(sentence, self.transforms)
-                if self.echo:
-                    print kernel_sentence
-                yield Request(kernel_sentence)
+    def respond(self, text):
+        request = Request(text)
+        if self.echo:
+            print text
+        try:
+            self.commands[request.command](*request.args)
+        except KeyError:
+            super(Shell, self).respond(request.text)
 
     def interact(self, banner=None):
         """Interact with the user.
