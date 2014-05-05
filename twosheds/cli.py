@@ -86,12 +86,13 @@ class CommandLineInterface(object):
                 f()
             try:
                 response = self.eval(self.read())
-                if response is not None:
-                    self.output(response)
             except SystemExit:
                 break
             except:
                 self.error(traceback.format_exc())
+            else:
+                if response is not None:
+                    self.output(response)
             for f in self._after_request_funcs:
                 f()
 
