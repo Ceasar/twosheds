@@ -94,7 +94,7 @@ Make sure to insert code like this before you execute ``interact``.
 Change the prompt
 -----------------
 
-The default prompt for twosheds is just ``$ ``. We can change that by setting
+The default prompt for twosheds is just ``$``. We can change that by setting
 ``$PS1`` before each interaction::
 
     import os
