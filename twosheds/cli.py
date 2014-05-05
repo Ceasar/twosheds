@@ -24,7 +24,20 @@ class CommandLineInterface(object):
         return self._prompt
 
     def read(self):
-        """Prompt the user and read the user input. Returns a string."""
+        """Prompt the user and read the user input.
+
+        A backslash followed by a <newline> is interpreted as a line
+        continuation. The backslash and <newline>s are removed before splitting
+        the input into tokens.
+
+        For example:
+
+            $ uname \
+            > -m
+            x86_64
+
+        Returns a string containing the user's input.
+        """
         try:
             line = raw_input(self.prompt)
             while line.endswith("\\"):
@@ -36,14 +49,14 @@ class CommandLineInterface(object):
     def eval(self, text):
         """Interpret and respond to user input. Optionally returns a string to
         print to standard out.
-        
+
         :param text: the user's input
         """
         raise NotImplementedError()
 
     def output(self, msg):
         """Output a message.
-        
+
         :param msg: a string to print to standard out
         """
         sys.stdout.write(msg)
@@ -57,7 +70,7 @@ class CommandLineInterface(object):
 
     def interact(self, banner=None):
         """Interact with the user.
-        
+
         :param banner: (optional) the banner to print before the first
                        interaction. Defaults to ``None``.
         """
