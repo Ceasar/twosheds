@@ -14,7 +14,6 @@ import readline
 from .builtins import cd, export
 from .cli import CommandLineInterface
 from .completer import make_completer
-from .kernel import Kernel
 from .request import Request
 from .transform import (transform, AliasTransform, TildeTransform,
                         VariableTransform)
@@ -78,25 +77,27 @@ class Shell(CommandLineInterface):
         )
         self.echo = echo
         self.histfile = histfile or DEFAULT_HISTFILE
-        self.kernel = Kernel()
 
     def _save_history(self):
         readline.write_history_file(self.histfile)
 
-    def eval(self, source_text):
+    def eval(self, text):
         """Interpret the user's requests and respond to them.
 
         :param text: the user's input
         """
-        for request in self.interpret(source_text):
-            self.respond(request)
+        for request in self.interpret(text):
+            try:
+                self.commands[request.command](*request.args)
+            except KeyError:
+                super(Shell, self).eval(request.text)
 
-    def interpret(self, source_text):
+    def interpret(self, text):
         """Interpret the user's requests.
 
         :param text: the user's input
         """
-        sentences = source_text.split(self.SEP)
+        sentences = text.split(self.SEP)
         for sentence in sentences:
             if sentence:
                 kernel_sentence = transform(sentence, self.transforms)
@@ -117,16 +118,6 @@ class Shell(CommandLineInterface):
                 pass
             atexit.register(self._save_history)
         super(Shell, self).interact(banner)
-
-    def respond(self, request):
-        """Respond to the user's request.
-
-        :param request: the user's request
-        """
-        try:
-            self.commands[request.command](*request.args)
-        except KeyError:
-            self.kernel.respond(request)
 
     def add_command(self, command, func):
         self.commands[command] = func

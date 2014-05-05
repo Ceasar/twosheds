@@ -2,6 +2,6 @@ import subprocess
 
 
 class Kernel(object):
-    def respond(self, request):
-        process = subprocess.Popen(request.text, shell=True)
+    def respond(self, text):
+        process = subprocess.Popen(text, shell=True)
         process.communicate()

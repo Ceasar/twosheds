@@ -1,6 +1,8 @@
 import sys
 import traceback
 
+from .kernel import Kernel
+
 
 class CommandLineInterface(object):
     """
@@ -12,6 +14,7 @@ class CommandLineInterface(object):
     """
     def __init__(self, environ):
         self.environ = environ
+        self._kernel = Kernel()
         self._before_request_funcs = []
         self._after_request_funcs = []
 
@@ -54,7 +57,7 @@ class CommandLineInterface(object):
 
         :param text: the user's input
         """
-        raise NotImplementedError()
+        return self._kernel.respond(text)
 
     def output(self, msg):
         """Output a message.
