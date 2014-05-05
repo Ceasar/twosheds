@@ -11,11 +11,9 @@ import atexit
 import os
 import readline
 
-from rl import completer, completion
-
 from .builtins import cd, export
 from .cli import CommandLineInterface
-from .completer import Completer
+from .completer import make_completer
 from .kernel import Kernel
 from .request import Request
 from .transform import (transform, AliasTransform, TildeTransform,
@@ -73,7 +71,7 @@ class Shell(CommandLineInterface):
             VariableTransform(os.environ),
             TildeTransform(os.environ['HOME']),
         ]
-        self.completer = Completer(
+        self.completer = make_completer(
             transforms=self.transforms,
             use_suffix=use_suffix,
             exclude=exclude
@@ -112,8 +110,6 @@ class Shell(CommandLineInterface):
         :param banner: (optional) the banner to print before the first
                        interaction. Defaults to ``None``.
         """
-        completer.parse_and_bind('TAB: complete')
-        completer.completer = self.completer.complete
         if hasattr(readline, "read_history_file"):
             try:
                 readline.read_history_file(self.histfile)

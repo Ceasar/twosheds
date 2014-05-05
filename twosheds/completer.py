@@ -6,7 +6,6 @@ This module implements command completion.
 """
 import os
 import re
-import rl
 import sys
 import traceback
 
@@ -95,17 +94,12 @@ class Completer(object):
         :param word: the word to complete
         :param state: an int, used to iterate over the choices
         """
-        # TODO: doing this manually right now, but may make sense to exploit
-        rl.completion.suppress_append = True
-        # rl.completion.filename_completion_desired = True
-
-        rl.completer.word_break_characters = (rl.completer
-                                              .word_break_characters
-                                              .replace("-", "")
-                                              .replace("~", "")
-                                              .replace("$", "")
-                                              .replace("/", "")
-                                              )
+        try:
+            import rl
+            # TODO: doing this manually right now, but may make sense to exploit
+            rl.completion.suppress_append = True
+        except ImportError:
+            pass
         word = transform(word, self.transforms)
         try:
             match = self.get_matches(word)[state]
@@ -204,3 +198,27 @@ class Completer(object):
 
     def _escape(self, path):
         return path.replace(" ", "\\ ")
+
+
+def make_completer(transforms, use_suffix=True, exclude=None):
+    try:
+        import rl
+    except ImportError:
+        import warnings
+        warnings.warn("rl unavailable")
+        import pprint
+        pprint.pprint(os.environ["PYTHONPATH"])
+        return None
+    else:
+        completer = Completer(transforms, use_suffix, exclude)
+        rl.completer.completer = completer.complete
+        rl.completer.parse_and_bind('TAB: complete')
+        # rl.completion.filename_completion_desired = True
+        rl.completer.word_break_characters = (rl.completer
+                                              .word_break_characters
+                                              .replace("-", "")
+                                              .replace("~", "")
+                                              .replace("$", "")
+                                              .replace("/", "")
+                                              )
+        return completer
