@@ -97,7 +97,7 @@ With twosheds it's *much* simpler::
 
 
     @shell.before_request
-    def ls()
+    def ls():
         global last_ls
         ls = check_output("ls", shell=True)
         if ls != last_ls:
