@@ -32,8 +32,9 @@ class Shell(CommandLineInterface):
     :param aliases: dictionary of aliases
     :param builtins: dictionary of builtins
     :param echo: set True to print commands immediately before execution
-    :param prompt: the string which is printed before reading each command
-                   from the terminal.
+    :param environ:
+        a dictionary containing environmental variables. This must include PS1
+        and PS2, which are used to define the prompts.
     :param histfile: the location in which to look for a history file. if
                      unset, ``DEFAULT_HISTFILE`` is used. histfile is useful
                      when sharing the same home directory between different
@@ -59,14 +60,14 @@ class Shell(CommandLineInterface):
     }
 
     def __init__(self,
+                 environ,
                  aliases=None,
                  echo=False,
-                 prompt=None,
                  histfile=None,
                  use_suffix=True,
                  exclude=None,
                  ):
-        super(Shell, self).__init__(prompt)
+        super(Shell, self).__init__(environ)
         self.transforms = [
             AliasTransform(aliases),
             VariableTransform(os.environ),

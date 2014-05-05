@@ -2,29 +2,29 @@ import sys
 import traceback
 
 
-DEFAULT_PROMPT = "$ "
-
-
 class CommandLineInterface(object):
     """
     Basic read-eval-print loop.
 
-    :param prompt: (optional) the string which is printed before reading each
-                   command from the terminal. Defaults to "$ ".
+    :param environ:
+        a dictionary containing environmental variables
+
     """
-    def __init__(self, prompt=None):
-        self._prompt = prompt or DEFAULT_PROMPT
+    def __init__(self, environ):
+        self.environ = environ
 
     @property
-    def prompt(self):
-        """
-        The string which is printed before reading each command from the
-        terminal.
-        """
-        return self._prompt
+    def primary_prompt_string(self):
+        """The prompt first seen at the command line. Defaults to "$ "."""
+        return self.environ.get("PS1", "$ ")
+
+    @property
+    def secondary_prompt_string(self):
+        """The prompt seen for line continuations. Defaults to "> "."""
+        return self.environ.get("PS2", "> ")
 
     def read(self):
-        """Prompt the user and read the user input.
+        """Prompt the user and read a command from the terminal.
 
         A backslash followed by a <newline> is interpreted as a line
         continuation. The backslash and <newline>s are removed before splitting
@@ -36,12 +36,12 @@ class CommandLineInterface(object):
             > -m
             x86_64
 
-        Returns a string containing the user's input.
+        Returns a string containing the user's command.
         """
         try:
-            line = raw_input(self.prompt)
+            line = raw_input(self.primary_prompt_string)
             while line.endswith("\\"):
-                line = line[:-1] + raw_input("> ")
+                line = line[:-1] + raw_input(self.secondary_prompt_string)
             return line
         except EOFError:
             raise SystemExit()
