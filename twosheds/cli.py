@@ -26,7 +26,10 @@ class CommandLineInterface(object):
     def read(self):
         """Prompt the user and read the user input. Returns a string."""
         try:
-            return raw_input(self.prompt)
+            line = raw_input(self.prompt)
+            while line.endswith("\\"):
+                line = line[:-1] + raw_input("> ")
+            return line
         except EOFError:
             raise SystemExit()
 
