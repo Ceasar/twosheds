@@ -52,9 +52,6 @@ Add the current git branch to the prompt::
 
     @shell.before_request
     def primary_prompt_string():
-        os.environ["PS1"] = os.getcwd().replace(os.environ["HOME"], "~") + " "
-
-    def prompt():
         pwd = os.getcwd().replace(os.environ["HOME"], "~")
         branch = git_branch()
         ps1 = "%s " % pwd if branch is None else "%s(%s) " % (pwd, branch)
