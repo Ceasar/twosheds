@@ -101,6 +101,7 @@ class Completer(object):
 
         rl.completer.word_break_characters = (rl.completer
                                               .word_break_characters
+                                              .replace("-", "")
                                               .replace("~", "")
                                               .replace("$", "")
                                               .replace("/", "")
@@ -188,7 +189,7 @@ class Completer(object):
         else:
             if self.use_suffix:
                 matches = [self.inflect(match) for match in matches]
-            return matches
+            return list(matches)
 
     def inflect(self, filename):
         """Inflect a filename to indicate its type.
