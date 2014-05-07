@@ -18,8 +18,8 @@ class CommandLineInterface(object):
     def __init__(self, environ):
         self.environ = environ
         self._kernel = Kernel()
-        self._before_request_funcs = []
-        self._after_request_funcs = []
+        self._before_interaction_funcs = []
+        self._after_interaction_funcs = []
 
     @property
     def primary_prompt_string(self):
@@ -87,8 +87,16 @@ class CommandLineInterface(object):
                     if response is not None:
                         self.output(response)
 
-    def interact(self, banner=None):
-        """Interact with the user.
+    def interact(self):
+        """Get a command from the user and respond to it."""
+        for f in self._before_interaction_funcs:
+            f()
+        self.eval(self.read())
+        for f in self._after_interaction_funcs:
+            f()
+
+    def serve_forever(self, banner=None):
+        """Handle one interaction at a time until shutdown.
 
         :param banner: (optional) the banner to print before the first
                        interaction. Defaults to ``None``.
@@ -96,11 +104,7 @@ class CommandLineInterface(object):
         if banner:
             print(banner)
         while True:
-            for f in self._before_request_funcs:
-                f()
-            self.eval(self.read())
-            for f in self._after_request_funcs:
-                f()
+            self.interact()
 
     def output(self, msg):
         """Output a message.
@@ -116,24 +120,24 @@ class CommandLineInterface(object):
         """
         sys.stderr.write(msg)
 
-    def before_request(self, f):
+    def before_interaction(self, f):
         """Register a function to be run before each interaction.
 
         :param f:
-            The function to run after each request. This function must not take
-            any parameters.
+            The function to run after each interaction. This function must not
+            take any parameters.
 
         """
-        self._before_request_funcs.append(f)
+        self._before_interaction_funcs.append(f)
         return f
 
-    def after_request(self, f):
+    def after_interaction(self, f):
         """Register a function to be run after each interaction.
 
         :param f:
-            The function to run after each request. This function must not take
-            any parameters.
+            The function to run after each interaction. This function must not
+            take any parameters.
 
         """
-        self._after_request_funcs.append(f)
+        self._after_interaction_funcs.append(f)
         return f

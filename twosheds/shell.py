@@ -46,7 +46,7 @@ class Shell(CommandLineInterface):
 
         >>> import twosheds
         >>> shell = twosheds.Shell()
-        >>> shell.interact()  # doctest: +SKIP
+        >>> shell.serve_forever()  # doctest: +SKIP
     """
 
     commands = {
@@ -92,7 +92,7 @@ class Shell(CommandLineInterface):
         except KeyError:
             super(Shell, self).respond(request.text)
 
-    def interact(self, banner=None):
+    def serve_forever(self, banner=None):
         """Interact with the user.
 
         :param banner: (optional) the banner to print before the first
@@ -104,7 +104,7 @@ class Shell(CommandLineInterface):
             except IOError:
                 pass
             atexit.register(self._save_history)
-        super(Shell, self).interact(banner)
+        super(Shell, self).serve_forever(banner)
 
     def add_command(self, command, func):
         self.commands[command] = func
