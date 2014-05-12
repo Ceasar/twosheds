@@ -1,93 +1,64 @@
-import sys
+import os
 import traceback
 
-from .kernel import Kernel
+from program import Program
+from builtins import cd, export
+from .transform import TildeTransform, VariableTransform
 
 
 class CommandLineInterface(object):
     """
     Basic read-eval-print loop.
-
-    :param environ:
-        a dictionary containing environmental variables
-
     """
-    # Marks the boundary between sentences
-    SEP = ";"
+    commands = {
+        'cd': cd,
+        'export': export,
+    }
 
-    def __init__(self, environ):
-        self.environ = environ
-        self._kernel = Kernel()
-
-    @property
-    def primary_prompt_string(self):
-        """The prompt first seen at the command line. Defaults to "$ "."""
-        return self.environ.get("PS1", "$ ")
-
-    @property
-    def secondary_prompt_string(self):
-        """The prompt seen for line continuations. Defaults to "> "."""
-        return self.environ.get("PS2", "> ")
+    def __init__(self, aliases, terminal, echo=False):
+        self.aliases = aliases
+        self.terminal = terminal
+        self.echo = echo
+        self.transforms = [
+            VariableTransform(os.environ),
+            TildeTransform(os.environ['HOME']),
+        ]
 
     def read(self):
-        """Prompt the user and read a command from the terminal.
-
-        A backslash followed by a <newline> is interpreted as a line
-        continuation. The backslash and <newline>s are removed before splitting
-        the input into tokens.
-
-        For example:
-
-            $ uname \
-            > -m
-            x86_64
-
-        Returns a strings containing the user's input.
         """
-        try:
-            line = raw_input(self.primary_prompt_string)
-            while line.endswith("\\"):
-                line = line[:-1] + raw_input(self.secondary_prompt_string)
-        except EOFError:
-            raise SystemExit()
-        else:
-            return line
-
-    def interpret(self, text):
-        """Interpret the user's input.
-
-        :param text: the user's input
+        The shell shall read its input in terms of lines from a file, from a
+        terminal in the case of an interactive shell, or from a string in the
+        case of sh -c or system(). The input lines can be of unlimited length.
         """
-        return text.split(self.SEP)
-
-    def respond(self, sentence):
-        """Respond to command from the user. Optionally returns a string to
-        print to standard out.
-
-        :param sentence: the user's command
-        """
-        return self._kernel.respond(sentence)
+        for line in self.terminal:
+            yield line
 
     def eval(self, text):
         """Respond to text entered by the user.
 
         :param text: the user's input
         """
-        for sentence in self.interpret(text):
-            if sentence:
-                try:
-                    response = self.respond(sentence)
-                except SystemExit:
-                    break
-                except:
-                    self.error(traceback.format_exc())
-                else:
-                    if response is not None:
-                        self.output(response)
+        program = Program(text, echo=self.echo, transforms=self.transforms)
+        tokens = program.gen_tokens()
+        for sentence in program.gen_sentences(tokens, self.aliases):
+            if self.echo:
+                self.terminal.debug(str(sentence))
+            program.interpret(sentence, self.commands)
 
     def interact(self):
         """Get a command from the user and respond to it."""
-        self.eval(self.read())
+        lines = ""
+        for line in self.read():
+            lines += line
+            try:
+                self.eval(lines)
+            except ValueError:
+                pass
+            except:
+                self.terminal.error(traceback.format_exc())
+                break
+            else:
+                break
 
     def serve_forever(self, banner=None):
         """Handle one interaction at a time until shutdown.
@@ -99,17 +70,3 @@ class CommandLineInterface(object):
             print(banner)
         while True:
             self.interact()
-
-    def output(self, msg):
-        """Output a message.
-
-        :param msg: a string to print to standard out
-        """
-        sys.stdout.write(msg)
-
-    def error(self, msg):
-        """Output an error.
-
-        :param msg: a string to print to standard error
-        """
-        sys.stderr.write(msg)

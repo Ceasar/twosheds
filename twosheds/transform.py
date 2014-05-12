@@ -8,61 +8,24 @@ A grammatical transformation (or transformation) operates on a given
 string with a given constituent structure and converts it into a new
 string with a new derived constituent structure.
 """
+from .sentence import Sentence
 
 
-def transform(sentence, transforms, inverse=False):
-    """Rewrite a sentence to a kernel sentence."""
-    transforms = reversed(transforms) if inverse else transforms
-    for transform in transforms:
-        sentence = transform(sentence, inverse)
+def transform(sentence, transforms, word=False, inverse=False):
+    if word:
+        sentence = Sentence([sentence])
+    if inverse:
+        transforms = reversed(transforms)
+    for t in transforms:
+        sentence = t(sentence, inverse)
+    if word:
+        return sentence.tokens[0]
     return sentence
 
 
 class Transform(object):
     def __call__(self, sentence, inverse=False):
         raise NotImplementedError("Transformations must be callable.")
-
-
-class AliasTransform(Transform):
-    """
-    Expands user-defined aliases.
-
-    >>> aliases = {'ls': 'ls -G'}
-    >>> t = AliasTransform(aliases)
-    >>> t('ls')
-    'ls -G'
-    >>> t('ls -G', inverse=True)
-    'ls'
-
-    A token is a candidate for alias expansion only if it is a command.
-
-    >>> t('echo ls')  # no effect
-    'echo ls'
-
-    :param aliases: dictionary of aliases to expand
-    """
-    def __init__(self, aliases=None):
-        self.aliases = aliases or {}
-
-    def __call__(self, sentence, inverse=False):
-        if inverse:
-            for k, v in self.aliases.iteritems():
-                if sentence.startswith(v):
-                    sentence = sentence.replace(v, k)
-                    break
-            return sentence
-        else:
-            try:
-                command, args = sentence.split(" ", 1)
-            except ValueError:
-                command, args = sentence, ""
-            try:
-                if args:
-                    return "%s %s" % (self.aliases[command], args)
-                else:
-                    return "%s" % (self.aliases[command],)
-            except KeyError:
-                return sentence
 
 
 def is_variable(token):
@@ -81,7 +44,7 @@ class VariableTransform(Transform):
     'cd /Users/arthurjackson'
     >>> t('cd /Users/arthurjackson', inverse=True)
     'cd $HOME'
-    
+
     :param environment: dictionary of variables to expand
     """
     def __init__(self, environment=None):
@@ -108,14 +71,14 @@ class VariableTransform(Transform):
                     yield token
 
     def __call__(self, sentence, inverse=False):
-        tokens = sentence.split()
-        return " ".join(self._transform(tokens, inverse))
+        sentence.tokens = list(self._transform(sentence.tokens, inverse))
+        return sentence
 
 
 class TildeTransform(Transform):
     """
     Decorator for :class:`VariableTransform <VariableTransform>`.
-    
+
     Expands ``~`` to ``$HOME``.
 
     >>> t = TildeTransform('/user/twosheds')
@@ -129,14 +92,14 @@ class TildeTransform(Transform):
         self.home = home
 
     def _transform(self, sentence, inverse=False):
-        tokens = sentence.split()
         TILDE = "~"
         source, target = (self.home, TILDE) if inverse else (TILDE, self.home)
-        return " ".join(
+        sentence.tokens = [
             token.replace(source, target) if token.startswith(source)
             else token
-            for token in tokens
-        )
+            for token in sentence.tokens
+        ]
+        return sentence
 
     def __call__(self, sentence, inverse=False):
         return self._transform(sentence, inverse)

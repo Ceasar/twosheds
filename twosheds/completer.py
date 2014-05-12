@@ -9,7 +9,7 @@ import re
 import sys
 import traceback
 
-from .transform import transform
+from transform import transform
 
 
 class Completer(object):
@@ -100,10 +100,10 @@ class Completer(object):
             rl.completion.suppress_append = True
         except ImportError:
             pass
-        word = transform(word, self.transforms)
+        word = transform(word, self.transforms, word=True)
         try:
             match = self.get_matches(word)[state]
-            return transform(match, self.transforms, inverse=True)
+            return transform(match, self.transforms, word=True, inverse=True)
         except IndexError:
             return None
 

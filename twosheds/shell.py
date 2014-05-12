@@ -11,12 +11,9 @@ import atexit
 import os
 import readline
 
-from .builtins import cd, export
 from .cli import CommandLineInterface
 from .completer import make_completer
-from .request import Request
-from .transform import (transform, AliasTransform, TildeTransform,
-                        VariableTransform)
+from .terminal import Terminal
 
 DEFAULT_HISTFILE = os.path.expanduser("~/.console-history")
 
@@ -49,11 +46,6 @@ class Shell(CommandLineInterface):
         >>> shell.interact()  # doctest: +SKIP
     """
 
-    commands = {
-        'cd': cd,
-        'export': export,
-    }
-
     def __init__(self,
                  environ,
                  aliases=None,
@@ -62,12 +54,7 @@ class Shell(CommandLineInterface):
                  use_suffix=True,
                  exclude=None,
                  ):
-        super(Shell, self).__init__(environ)
-        self.transforms = [
-            AliasTransform(aliases),
-            VariableTransform(os.environ),
-            TildeTransform(os.environ['HOME']),
-        ]
+        super(Shell, self).__init__(aliases, Terminal(environ))
         self.completer = make_completer(
             transforms=self.transforms,
             use_suffix=use_suffix,
@@ -80,26 +67,6 @@ class Shell(CommandLineInterface):
 
     def _save_history(self):
         readline.write_history_file(self.histfile)
-
-    def interpret(self, text):
-        for sentence in super(Shell, self).interpret(text):
-            yield transform(sentence, self.transforms)
-
-    def respond(self, text):
-        request = Request(text)
-        if self.echo:
-            print text
-        try:
-            self.commands[request.command](*request.args)
-        except KeyError:
-            super(Shell, self).respond(request.text)
-
-    def interact(self):
-        for f in self._before_interaction_funcs:
-            f()
-        super(Shell, self).interact()
-        for f in self._after_interaction_funcs:
-            f()
 
     def serve_forever(self, banner=None):
         """Interact with the user.
@@ -114,6 +81,13 @@ class Shell(CommandLineInterface):
                 pass
             atexit.register(self._save_history)
         super(Shell, self).serve_forever(banner)
+
+    def interact(self):
+        for f in self._before_interaction_funcs:
+            f()
+        super(Shell, self).interact()
+        for f in self._after_interaction_funcs:
+            f()
 
     def add_command(self, command, func):
         self.commands[command] = func
