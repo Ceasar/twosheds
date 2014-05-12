@@ -75,6 +75,8 @@ class Shell(CommandLineInterface):
         )
         self.echo = echo
         self.histfile = histfile or DEFAULT_HISTFILE
+        self._before_interaction_funcs = []
+        self._after_interaction_funcs = []
 
     def _save_history(self):
         readline.write_history_file(self.histfile)
@@ -92,7 +94,14 @@ class Shell(CommandLineInterface):
         except KeyError:
             super(Shell, self).respond(request.text)
 
-    def interact(self, banner=None):
+    def interact(self):
+        for f in self._before_interaction_funcs:
+            f()
+        super(Shell, self).interact()
+        for f in self._after_interaction_funcs:
+            f()
+
+    def serve_forever(self, banner=None):
         """Interact with the user.
 
         :param banner: (optional) the banner to print before the first
@@ -104,7 +113,7 @@ class Shell(CommandLineInterface):
             except IOError:
                 pass
             atexit.register(self._save_history)
-        super(Shell, self).interact(banner)
+        super(Shell, self).serve_forever(banner)
 
     def add_command(self, command, func):
         self.commands[command] = func
@@ -114,3 +123,25 @@ class Shell(CommandLineInterface):
             self.add_command(command, f)
             return f
         return decoractor
+
+    def before_interaction(self, f):
+        """Register a function to be run before each interaction.
+
+        :param f:
+            The function to run after each interaction. This function must not
+            take any parameters.
+
+        """
+        self._before_interaction_funcs.append(f)
+        return f
+
+    def after_interaction(self, f):
+        """Register a function to be run after each interaction.
+
+        :param f:
+            The function to run after each interaction. This function must not
+            take any parameters.
+
+        """
+        self._after_interaction_funcs.append(f)
+        return f
