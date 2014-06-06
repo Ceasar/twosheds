@@ -1,6 +1,7 @@
 from .kernel import Kernel
 from .sentence import Sentence
 from .transform import transform
+import token
 
 
 class Program(object):
@@ -8,10 +9,12 @@ class Program(object):
         self.text = text
 
         # Token recognition variables
+        self.blanks = {' ', '\t'}
         self.escape_chars = {'\\'}
         self.quotes = {"'", '"'}
-        self.separators = ";"
-        self.whitespace = {' ', '\t', '\r', '\n'}
+        # TODO: add the rest
+        self.metacharacters = {"|", "&", ";", "(", ")"}  | self.blanks
+        self.whitespace = self.blanks | {'\r', '\n'}
 
         self.transforms = transforms or []
 
@@ -31,7 +34,11 @@ class Program(object):
         current_token = []
         escape = False
         quote = None
-        for char in self.text:
+        skip = 0
+        for char, peek in zip(self.text, self.text[1:] + " "):
+            if skip > 0:
+                skip -= 1
+                continue
             if quote is None:
                 if escape:
                     current_token.append(char)
@@ -40,20 +47,26 @@ class Program(object):
                     escape = True
                 elif char in self.quotes:
                     quote = char
-                elif char in self.whitespace:
+                elif char in self.metacharacters:
                     if current_token:
-                        yield ''.join(current_token)
+                        yield token.Word(''.join(current_token))
                     current_token = []
-                elif char in self.separators:
-                    if current_token:
-                        yield ''.join(current_token)
-                    current_token = []
-                    yield None
+                    if char == "(":
+                        yield token.LParen()
+                    elif char == ")":
+                        yield token.RParen()
+                    # TODO: the following is a 
+                    elif char in "|&;":
+                        if peek == char:
+                            yield token.Word(char + peek)
+                            skip += 1
+                        else:
+                            yield token.Word(char)
                 else:
                     current_token.append(char)
             elif char == quote:
                 if current_token:
-                    yield ''.join(current_token)
+                    yield token.DoubleQuote(''.join(current_token))
                 current_token = []
                 quote = None
             else:
@@ -63,12 +76,12 @@ class Program(object):
         if escape:
             raise ValueError("No escaped character")
         if current_token:
-            yield ''.join(current_token)
+            yield token.Word(''.join(current_token))
 
     def _gen_sentences(self, tokens):
         sentence = []
         for token in tokens:
-            if token is None:
+            if str(token) == ";":
                 yield sentence
                 sentence = []
             else:
@@ -79,8 +92,12 @@ class Program(object):
         if aliases is None:
             aliases = {}
         for sentence in self._gen_sentences(tokens):
-            if sentence[0] in aliases:
-                new_tokens = Program(aliases[sentence[0]]).gen_tokens()
+            try:
+                alias = aliases[str(sentence[0])]
+            except KeyError:
+                pass
+            else:
+                new_tokens = Program(alias).gen_tokens()
                 sentence[0:1] = list(new_tokens)
             yield transform(Sentence(sentence), self.transforms)
 

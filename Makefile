@@ -1,16 +1,15 @@
 .PHONY: docs
 
 MODULE = twosheds
-TEST = test_twosheds.py
 
 init:
 	pip install -r requirements.txt
 
 test:
-	py.test
+	py.test tests
 
 coverage:
-	py.test --verbose --cov-report term-missing --cov=$(MODULE)
+	py.test --verbose --cov-report term-missing --cov=$(MODULE) tests
 
 interact:
 	./scripts/twosheds
