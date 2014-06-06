@@ -11,7 +11,7 @@ Change your login shell
 
 Replacing your login shell the shell you just wrote is simple.
 
-Let's assume your shell is named ``$HOME/shell``. First you need to add your
+Let's assume your shell is named ``$SHELLPATH``. First you need to add your
 shell to the list of valid shells, and then you need to actually change it.
 
 To add your shell to the list of valid shells, you need to add it to
@@ -31,11 +31,11 @@ default, it looks something like this::
 
 So to add your shell, simply::
 
-    $ sudo cat $HOME/shell >> /etc/shells
+    $ sudo bash -c "echo $SHELLPATH >> /etc/shells"
 
 Finally, change your login shell::
 
-    $ chsh -s $HOME/shell
+    $ chsh -s $SHELLPATH
 
 Add git branch to prompt
 ------------------------
