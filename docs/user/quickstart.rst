@@ -14,7 +14,7 @@ Interacting with a shell with twosheds is very simple::
 
     >>> import twosheds
     >>> shell = twosheds.Shell()
-    >>> shell.interact()
+    >>> shell.serve_forever()
     $ ls
     AUTHORS.rst       build             requirements.txt  test_twosheds.py
     LICENSE           dist              scripts           tests
@@ -33,7 +33,7 @@ If we want to configure our shell, it's useful to store our code in a script::
 
 
     shell = twosheds.Shell()
-    shell.interact()
+    shell.serve_forever()
 
 Just copy that into *twosheds* (or whatever you want to call your shell) and
 make it executable::

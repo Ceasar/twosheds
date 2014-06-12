@@ -18,7 +18,7 @@ or C. twosheds helps you write and customize your own shell, in pure Python:
 
     >>> import twosheds
     >>> shell = twosheds.Shell()
-    >>> shell.interact()
+    >>> shell.serve_forever()
     $ ls
     AUTHORS.rst       build             requirements.txt  test_twosheds.py
     LICENSE           dist              scripts           tests
