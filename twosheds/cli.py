@@ -54,6 +54,8 @@ class CommandLineInterface(object):
                 self.eval(lines)
             except ValueError:
                 pass
+            except KeyboardInterrupt as e:
+                raise e
             except:
                 self.terminal.error(traceback.format_exc())
                 break
@@ -69,4 +71,10 @@ class CommandLineInterface(object):
         if banner:
             print(banner)
         while True:
-            self.interact()
+            try:
+                self.interact()
+            except KeyboardInterrupt:  # program interrupted by the user
+                print  # do not print on the same line as ^C
+                pass
+            except SystemExit:  # exit from the interpreter
+                break
