@@ -95,10 +95,12 @@ class Program(object):
             try:
                 alias = aliases[str(sentence[0])]
             except KeyError:
+                # do nothing if no alias is found
+                pass
+            except IndexError:
                 pass
             else:
-                new_tokens = Program(alias).gen_tokens()
-                sentence[0:1] = list(new_tokens)
+                sentence[0:1] = list(Program(alias).gen_tokens())
             yield transform(Sentence(sentence), self.transforms)
 
     def interpret(self, sentence, environ=None):
@@ -108,6 +110,8 @@ class Program(object):
             return environ[sentence.command](*sentence.args)
         except KeyError:
             return Kernel().respond(str(sentence))
+        except IndexError:
+            return None
 
     def run(self, aliases=None, environ=None):
         tokens = self.gen_tokens()
