@@ -17,6 +17,9 @@ class Token(object):
     def replace(self, x, y):
         return self.text.replace(x, y)
 
+    def __getitem__(self, x):
+        return self.text[x]
+
     def __str__(self):
         return self.text.replace(" ", "\ ")
 
