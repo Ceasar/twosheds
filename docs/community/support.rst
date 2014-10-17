@@ -1,24 +1,27 @@
 .. _support:
 
+.. _file an issue on Github: https://github.com/Ceasar/twosheds/issues
+.. _send a tweet to the maintainer: https://twitter.com/Ceasar_Bautista
+.. _email the maintainer: mailto:cbautista@gmail.com
+
 Support
 =======
 
-If you have questions or issues about twosheds, there are several options:
-
-Send a Tweet
-~~~~~~~~~~~~
-
-If your question is less than 140 characters, feel free to send a tweet to
-`@Ceasar_Bautista`_.
+If you have questions or issues, there are several options:
 
 File an Issue
 ~~~~~~~~~~~~~
 
-If you notice some unexpected behavior in twosheds, or want to see support for
-a new feature, `file an issue on GitHub <issues_>`_.
+If you notice some unexpected behavior, or want to see support for
+a new feature, `file an issue on GitHub`_.
+
+Send a Tweet
+~~~~~~~~~~~~
+
+If your question is less than 140 characters, feel free to `send a tweet to
+the maintainer`_.
 
 E-mail
 ~~~~~~
 
-I'm more than happy to answer any personal or in-depth questions about
-twosheds. Feel free to email `cbautista@gmail.com <mail_>`_.
+If your question is personal or in-depth, feel free to `email the maintainer`_.
