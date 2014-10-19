@@ -1,19 +1,35 @@
+"""
+
+twosheds.program
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This module implements the Program object which represents Bash programs.
+"""
 from .kernel import Kernel
 from .sentence import Sentence
 from .transform import transform
 import token
 
 
+QUOTES = ("'", '"')
+
+
 class Program(object):
+    """
+    This represents a sequence of procedures expressed in a programming
+    language.
+
+    >>> program = Program("ls -a")
+    >>> list(program.gen_tokens())
+    ['ls', '-a']
+    """
     def __init__(self, text, transforms=None, echo=False):
         self.text = text
 
         # Token recognition variables
         self.blanks = {' ', '\t'}
         self.escape_chars = {'\\'}
-        self.quotes = {"'", '"'}
-        # TODO: add the rest
-        self.metacharacters = {"|", "&", ";", "(", ")"}  | self.blanks
+        self.metacharacters = {"|", "&", ";", "(", ")"} | self.blanks
         self.whitespace = self.blanks | {'\r', '\n'}
 
         self.transforms = transforms or []
@@ -45,7 +61,7 @@ class Program(object):
                     escape = False
                 elif char in self.escape_chars:
                     escape = True
-                elif char in self.quotes:
+                elif char in QUOTES:
                     quote = char
                 elif char in self.metacharacters:
                     if current_token:
@@ -55,7 +71,6 @@ class Program(object):
                         yield token.LParen()
                     elif char == ")":
                         yield token.RParen()
-                    # TODO: the following is a 
                     elif char in "|&;":
                         if peek == char:
                             yield token.Word(char + peek)
@@ -80,7 +95,7 @@ class Program(object):
 
     def _gen_sentences(self, tokens):
         sentence = []
-        for token in tokens:
+        for token in tokens:  # noqa
             if str(token) == ";":
                 yield sentence
                 sentence = []
@@ -89,6 +104,9 @@ class Program(object):
         yield sentence
 
     def gen_sentences(self, tokens, aliases=None):
+        """
+        Generate a sequence of sentences from stream of tokens.
+        """
         if aliases is None:
             aliases = {}
         for sentence in self._gen_sentences(tokens):

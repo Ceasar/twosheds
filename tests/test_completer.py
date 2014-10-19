@@ -1,7 +1,5 @@
 import os
 
-from fixture import *
-
 
 class TestCompleter():
     def test_gen_filename_completions(self, completer, tmpdir):

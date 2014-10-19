@@ -1,4 +1,4 @@
-from fixture import *
+# flake8: noqa
 
 
 def test_variable_substitution(variable_transform):
@@ -24,6 +24,7 @@ def test_variable_substitution_only_at_start(variable_transform):
     assert variable_transform(text) == text
     text = 'x%s' % EDITOR
     assert variable_transform(text, inverse=True) == text
+
 
 def test_variable_substitution_order(variable_transform):
     """Variable substitution should substitute longer values first."""

@@ -1,4 +1,3 @@
-from fixture import *
 
 
 def test_alias_substitution1(alias_transform):

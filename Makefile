@@ -1,4 +1,4 @@
-.PHONY: docs
+.PHONY: docs test
 
 MODULE = twosheds
 
@@ -6,7 +6,7 @@ init:
 	pip install -r requirements.txt
 
 test:
-	py.test tests
+	tox -e py27
 
 coverage:
 	py.test --verbose --cov-report term-missing --cov=$(MODULE) tests

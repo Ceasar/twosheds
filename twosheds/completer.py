@@ -14,22 +14,23 @@ from transform import transform
 
 class Completer(object):
     """A Completer completes words when given a unique abbreviation.
-    
+
     Type part of a word (for example ``ls /usr/lost``) and hit the tab key to
     run the completer.
-    
+
     The shell completes the filename ``/usr/lost`` to ``/usr/lost+found/``,
     replacing the incomplete word with the complete word in the input buffer.
 
     .. note::
-    
+
         Completion adds a ``/`` to the end of completed directories and a
         space to the end of other completed words, to speed typing and provide
-        a visual indicator of successful completion. Completer.use_suffix can be set ``False`` to prevent this.
-    
+        a visual indicator of successful completion. Completer.use_suffix can
+        be set ``False`` to prevent this.
+
     If no match is found (perhaps ``/usr/lost+found`` doesn't exist), then no
     matches will appear.
-    
+
     If the word is already complete (perhaps there is a ``/usr/lost`` on your
     system, or perhaps you were thinking too far ahead and typed the whole
     thing) a ``/`` or space is added to the end if it isn't already there.
@@ -57,10 +58,10 @@ class Completer(object):
     also match.
 
     .. note::
-        
+
         ``excludes_patterns`` can be set to a list of regular expression
         patterns to be ignored by completion.
-        
+
         Consider that the completer were initialized to ignore
         ``[r'.*~', r'.*.o']``::
 
@@ -76,7 +77,7 @@ class Completer(object):
                        provide a visual indicator of successful completion.
                        Defaults to ``True``.
     :param excludes: a list of regular expression patterns to be ignored by
-                     completion. 
+                     completion.
     """
     def __init__(self, transforms, use_suffix=True, exclude=None):
         self.transforms = transforms
@@ -88,7 +89,7 @@ class Completer(object):
 
         This is called successively with ``state == 0, 1, 2, ...`` until it
         returns ``None``.
-        
+
         The completion should begin with ``word``.
 
         :param word: the word to complete
@@ -96,7 +97,8 @@ class Completer(object):
         """
         try:
             import rl
-            # TODO: doing this manually right now, but may make sense to exploit
+            # TODO: doing this manually right now, but may make sense to
+            # exploit
             rl.completion.suppress_append = True
         except ImportError:
             pass
@@ -124,7 +126,7 @@ class Completer(object):
 
     def gen_filename_completions(self, word, filenames):
         """Generate a sequence of filenames that match ``word``.
-        
+
         :param word: the word to complete
         """
         match_found = False
@@ -147,7 +149,7 @@ class Completer(object):
 
     def gen_matches(self, word):
         """Generate a sequence of possible completions for ``word``.
-        
+
         :param word: the word to complete
         """
 
@@ -162,22 +164,25 @@ class Completer(object):
 
     def gen_variable_completions(self, word, env):
         """Generate a sequence of possible variable completions for ``word``.
-        
+
         :param word: the word to complete
         :param env: the environment
-        """ 
-        # ignore dollar
+        """
+        # ignore the first character, which is a dollar sign
         var = word[1:]
         for k in env:
             if k.startswith(var):
                 yield "$" + k
 
     def get_matches(self, word):
+        """
+        Get a list of filenames with match *word*.
+        """
         matches = self.gen_matches(word)
         # defend this against bad user input for regular expression patterns
         try:
             matches = self.exclude_matches(matches)
-        except:
+        except Exception:
             sys.stderr.write(traceback.format_exc())
             return None
         else:
@@ -197,6 +202,7 @@ class Completer(object):
         return self._escape(filename) + suffix
 
     def _escape(self, path):
+        """Escape any spaces in *path*."""
         return path.replace(" ", "\\ ")
 
 
