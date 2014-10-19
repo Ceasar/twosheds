@@ -7,7 +7,7 @@ twosheds
 .. image:: https://pypip.in/d/twosheds/badge.png
         :target: https://crate.io/packages/twosheds/
 
-.. image:: https://travis-ci.org/Ceasar/twosheds.svg?branch=travis
+.. image:: https://travis-ci.org/Ceasar/twosheds.svg?branch=master
     :target: https://travis-ci.org/Ceasar/twosheds
 
 twosheds is a library, written in Python, for making command language
