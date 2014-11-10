@@ -56,7 +56,9 @@ class CommandLineInterface(object):
                 sentence.tokens[0:1] = self._get_tokens(alias)
             if self.echo:
                 self.terminal.debug(str(sentence))
-            program.interpret(sentence, self.commands)
+            rv = program.interpret(sentence, self.commands)
+            if rv is not None:
+                print rv
 
     def interact(self):
         """Get a command from the user and respond to it."""

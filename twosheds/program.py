@@ -11,6 +11,7 @@ from .transform import transform
 
 
 QUOTES = ("'", '"')
+KERNEL = Kernel()
 
 
 class Program(object):
@@ -49,7 +50,7 @@ class Program(object):
         try:
             return environ[sentence.command](*sentence.args)
         except KeyError:
-            return Kernel().respond(str(sentence))
+            return KERNEL.respond(str(sentence))
         except IndexError:
             return None
 
