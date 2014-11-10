@@ -1,5 +1,4 @@
 import os
-import shlex
 import traceback
 
 from program import Program
@@ -34,26 +33,14 @@ class CommandLineInterface(object):
         for line in self.terminal:
             yield line
 
-    def _get_tokens(self, text):
-        return shlex.split(text)
-
     def eval(self, text):
         """Respond to text entered by the user.
 
         :param text: the user's input
         """
-        tokens = self._get_tokens(text)
-        program = Program(tokens, transforms=self.transforms)
-        for sentence in program.gen_sentences():
-            try:
-                alias = self.aliases[str(sentence.command)]
-            except KeyError:
-                # do nothing if no alias is found
-                pass
-            except IndexError:
-                pass
-            else:
-                sentence.tokens[0:1] = self._get_tokens(alias)
+        program = Program(text, echo=self.echo, transforms=self.transforms)
+        tokens = program.gen_tokens()
+        for sentence in program.gen_sentences(tokens, self.aliases):
             if self.echo:
                 self.terminal.debug(str(sentence))
             program.interpret(sentence, self.commands)
