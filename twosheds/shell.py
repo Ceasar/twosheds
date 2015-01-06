@@ -119,3 +119,13 @@ class Shell(CommandLineInterface):
         """
         self._after_interaction_funcs.append(f)
         return f
+
+    def completes(self, g):
+        """Register a generator to extend the capabilities of the completer.
+
+        :param g:
+            A generator which, when invoked with a string representing the word
+            the user is trying to complete, should generate strings that the
+            user might find relevant.
+        """
+        self.completer.extensions.append(g)

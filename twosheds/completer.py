@@ -78,11 +78,18 @@ class Completer(object):
                        Defaults to ``True``.
     :param excludes: a list of regular expression patterns to be ignored by
                      completion.
+    :param extensions:
+        A sequence of generators which can extend the matching capabilities of
+        the completer. Generators must accept a string "word" as the sole
+        argument, representing the word that the user is trying to complete,
+        and use it to generate possible matches.
     """
-    def __init__(self, transforms, use_suffix=True, exclude=None):
+    def __init__(self, transforms, use_suffix=True, exclude=None,
+                 extensions=None):
         self.transforms = transforms
         self.use_suffix = use_suffix
         self.exclude_patterns = exclude or []
+        self.extensions = extensions or []
 
     def complete(self, word, state):
         """Return the next possible completion for ``word``.
@@ -161,6 +168,9 @@ class Completer(object):
             filenames = os.listdir(head or '.')
             for match in self.gen_filename_completions(tail, filenames):
                 yield os.path.join(head, match)
+        for extension in self.extensions:
+            for match in extension(word):
+                yield match
 
     def gen_variable_completions(self, word, env):
         """Generate a sequence of possible variable completions for ``word``.

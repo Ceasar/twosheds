@@ -131,3 +131,21 @@ Automating `git status` is similar to automating `ls`::
                 last_gs = gs
                 # show status concisely
                 shell.eval("git status -s")
+
+Auto-complete Git branches
+--------------------------------------------------------------------------------
+
+To extend the completer, you can use the ``Shell.completes`` decorator. It takes
+a generator which given a string representing the word the user is trying to
+complete, generates possible matches. For example, the following shows how to
+extend the completer to match Git branches::
+
+    @shell.completes
+    def git_branches(word):
+        branches = sh("git branch --list {}* 2> /dev/null".format(word)).split()
+        try:
+            branches.remove("*")
+        except ValueError:
+            pass
+        for branch in branches:
+            yield branch
