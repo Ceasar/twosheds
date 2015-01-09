@@ -9,7 +9,10 @@ from __future__ import absolute_import
 
 import atexit
 import os
-import readline
+try:
+    import readline
+except ImportError:
+    import pyreadline as readline
 
 from .cli import CommandLineInterface
 from .completer import make_completer
