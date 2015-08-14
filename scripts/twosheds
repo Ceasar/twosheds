@@ -2,4 +2,4 @@
 import twosheds
 
 shell = twosheds.Shell()
-shell.interact()
+shell.serve_forever()
