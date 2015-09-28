@@ -7,8 +7,8 @@ twosheds
 .. image:: https://pypip.in/d/twosheds/badge.png
         :target: https://crate.io/packages/twosheds/
 
-.. image:: https://travis-ci.org/Ceasar/twosheds.svg?branch=master
-    :target: https://travis-ci.org/Ceasar/twosheds
+.. image:: https://travis-ci.org/Caesar/twosheds.svg?branch=master
+    :target: https://travis-ci.org/Caesar/twosheds
 
 twosheds is a library, written in Python, for making command language
 interpreters, or shells.
@@ -88,7 +88,7 @@ Send a Tweet
 ~~~~~~~~~~~~
 
 If your question is less than 140 characters, feel free to tweet at the
-maintainer, `@Ceasar_Bautista`_.
+maintainer, `@Caesar_Bautista`_.
 
 File an Issue
 ~~~~~~~~~~~~~
@@ -103,8 +103,8 @@ I'm more than happy to answer any personal or in-depth questions about twosheds.
 Feel free to email `cbautista@gmail.com`_.
 
 
-.. _`the repository`: http://github.com/Ceasar/twosheds
-.. _`AUTHORS`: https://github.com/Ceasar/twosheds/blob/master/AUTHORS.rst
-.. _@Ceasar_Bautista: https://twitter.com/Ceasar_Bautista
-.. _file an issue on Github issues: https://github.com/Ceasar/twosheds/issues
+.. _`the repository`: http://github.com/Caesar/twosheds
+.. _`AUTHORS`: https://github.com/Caesar/twosheds/blob/master/AUTHORS.rst
+.. _@Caesar_Bautista: https://twitter.com/Caesar_Bautista
+.. _file an issue on Github issues: https://github.com/Caesar/twosheds/issues
 .. _cbautista@gmail.com: mailto:cbautista@gmail.com
