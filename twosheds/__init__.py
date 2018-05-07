@@ -13,5 +13,5 @@ from .shell import Shell  # noqa
 from .sentence import Sentence  # noqa
 from .transform import transform  # noqa
 
-__version_info__ = ('0', '1', '2')
+__version_info__ = ('0', '1', '3')
 __version__ = '.'.join(__version_info__)
