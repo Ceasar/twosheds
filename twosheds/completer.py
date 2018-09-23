@@ -9,6 +9,8 @@ import re
 import sys
 import traceback
 
+import pygtrie
+
 from transform import transform
 
 
@@ -90,6 +92,7 @@ class Completer(object):
         self.use_suffix = use_suffix
         self.exclude_patterns = exclude or []
         self.extensions = extensions or []
+        self.matches = None
 
     def complete(self, word, state):
         """Return the next possible completion for ``word``.
@@ -110,11 +113,16 @@ class Completer(object):
         except ImportError:
             pass
         word = transform(word, self.transforms, word=True)
+
+        if state == 0:
+            self.matches = self.get_matches(word)
+
         try:
-            match = self.get_matches(word)[state]
-            return transform(match, self.transforms, word=True, inverse=True)
+            match = self.matches[state]
         except IndexError:
             return None
+        else:
+            return transform(match, self.transforms, word=True, inverse=True)
 
     def exclude_matches(self, matches):
         """Filter any matches that match an exclude pattern.
@@ -136,23 +144,13 @@ class Completer(object):
 
         :param word: the word to complete
         """
-        match_found = False
-        if word:
-            for filename in filenames:
-                if filename.startswith(word):
-                    match_found = True
-                    yield filename
+        if not word:
+            return filenames
         else:
+            trie = pygtrie.CharTrie()
             for filename in filenames:
-                if not self._is_hidden_file(filename):
-                    match_found = True
-                    yield filename
-        # return results that match anywhere in the file if no results are
-        # found
-        if not match_found:
-            for filename in filenames:
-                if word in filename:
-                    yield filename
+                trie[filename] = filename
+            return trie.iterkeys(prefix=word)
 
     def gen_matches(self, word):
         """Generate a sequence of possible completions for ``word``.
@@ -166,7 +164,8 @@ class Completer(object):
         else:
             head, tail = os.path.split(word)
             filenames = os.listdir(head or '.')
-            for match in self.gen_filename_completions(tail, filenames):
+            completions = self.gen_filename_completions(tail, filenames)
+            for match in completions:
                 yield os.path.join(head, match)
         for extension in self.extensions:
             for match in extension(word):
