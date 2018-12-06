@@ -50,7 +50,7 @@ class Shell(CommandLineInterface):
     """
 
     def __init__(self,
-                 environ,
+                 environ=os.environ,
                  aliases=None,
                  echo=False,
                  histfile=None,
